@@ -64,10 +64,6 @@ func main() {
 	input.SetLogGroupName(*logGroupName)
 	input.SetStartTime(aws.TimeUnixMilli(time.Now().Add(-10 * time.Second)))
 
-	if len(*filterPattern) != 0 {
-		input.SetFilterPattern(*filterPattern)
-	}
-
 	if len(*logStreamPrefix) > 0 {
 		streams := strings.Split(*logStreamPrefix, ",")
 		streamNamePointers := make([]*string, len(streams))
@@ -75,6 +71,10 @@ func main() {
 			streamNamePointers[i] = &stream
 		}
 		input.SetLogStreamNames(streamNamePointers)
+	}
+
+	if len(*filterPattern) != 0 {
+		input.SetFilterPattern(*filterPattern)
 	}
 
 	for {
