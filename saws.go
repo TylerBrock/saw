@@ -8,13 +8,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/TylerBrock/saws/jdad"
+	"github.com/TylerBrock/colorjson"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/fatih/color"
 )
+
+var formatter = colorjson.NewFormatter()
 
 func handlePage(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 	red := color.New(color.FgRed).SprintFunc()
@@ -30,19 +32,36 @@ func handlePage(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool 
 		if err := json.Unmarshal(bytes, &jl); err != nil {
 			fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
 		} else {
-			fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), jdad.Serialize(jl))
+			output, _ := formatter.Marshal(jl)
+			fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
 		}
 	}
 	return !lastPage
 }
 
 func main() {
-	logGroupName := flag.String("group", "", "the log group to stream")
-	logStreamPrefix := flag.String("prefix", "", "the log stream prefix")
-	filterPattern := flag.String("filter", "", "the filter pattern")
+	logGroupName := flag.String("group", "", "Log group to stream")
+	logStreamPrefix := flag.String("prefix", "", "Log stream prefix")
+	filterPattern := flag.String("filter", "", "Filter pattern")
+	expand := flag.Bool("expand", false, "Expand JSON log lines")
+	//raw := flag.Bool("raw", false, "Disable all color and adornment of log lines")
+	rawString := flag.Bool("rawString", false, "Write raw JSON strings")
+	invert := flag.Bool("invert-color", false, "Inverts key color from white to black")
 	noColor := flag.Bool("no-color", false, "Disable color output")
 
 	flag.Parse()
+
+	if *expand {
+		formatter.Indent = 4
+	}
+
+	if *rawString {
+		formatter.RawStrings = true
+	}
+
+	if *invert {
+		formatter.KeyColor = color.New(color.FgWhite)
+	}
 
 	if *logGroupName == "" {
 		fmt.Println("Error: Must provide a logGroup!")
