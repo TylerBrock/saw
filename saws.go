@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/TylerBrock/colorjson"
@@ -17,6 +16,13 @@ import (
 )
 
 var formatter = colorjson.NewFormatter()
+var lastSeenTime *int64
+
+func updateLastSeenTime(ts *int64) {
+	if lastSeenTime == nil || *ts > *lastSeenTime {
+		lastSeenTime = ts
+	}
+}
 
 func handlePage(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 	red := color.New(color.FgRed).SprintFunc()
@@ -35,8 +41,27 @@ func handlePage(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool 
 			output, _ := formatter.Marshal(jl)
 			fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
 		}
+		updateLastSeenTime(event.Timestamp)
 	}
 	return !lastPage
+}
+
+func filterLogStreams(
+	cw *cloudwatchlogs.CloudWatchLogs,
+	logGroupName *string,
+	logStreamPrefix *string,
+) []*string {
+	input := cloudwatchlogs.DescribeLogStreamsInput{}
+	input.SetLogGroupName(*logGroupName)
+	input.SetLogStreamNamePrefix(*logStreamPrefix)
+	var streamNames = make([]*string, 0)
+	cw.DescribeLogStreamsPages(&input, func(out *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+		for _, stream := range out.LogStreams {
+			streamNames = append(streamNames, stream.LogStreamName)
+		}
+		return lastPage
+	})
+	return streamNames
 }
 
 func main() {
@@ -81,15 +106,16 @@ func main() {
 	input := cloudwatchlogs.FilterLogEventsInput{}
 	input.SetInterleaved(true)
 	input.SetLogGroupName(*logGroupName)
-	input.SetStartTime(aws.TimeUnixMilli(time.Now().Add(-10 * time.Second)))
+	input.SetStartTime(aws.TimeUnixMilli(time.Now()))
 
 	if len(*logStreamPrefix) > 0 {
-		streams := strings.Split(*logStreamPrefix, ",")
-		streamNamePointers := make([]*string, len(streams))
-		for i, stream := range streams {
-			streamNamePointers[i] = &stream
+		streamNamePointers := filterLogStreams(cw, logGroupName, logStreamPrefix)
+		if len(streamNamePointers) > 0 {
+			input.SetLogStreamNames(streamNamePointers)
+		} else {
+			fmt.Printf("Cannot find any log streams with prefix \"%s\"\n", *logStreamPrefix)
+			os.Exit(3)
 		}
-		input.SetLogStreamNames(streamNamePointers)
 	}
 
 	if len(*filterPattern) != 0 {
@@ -101,6 +127,9 @@ func main() {
 		if err != nil {
 			fmt.Println("Error", err)
 			os.Exit(2)
+		}
+		if lastSeenTime != nil {
+			input.SetStartTime(*lastSeenTime)
 		}
 		time.Sleep(1 * time.Second)
 	}
