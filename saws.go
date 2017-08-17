@@ -47,7 +47,7 @@ func handlePage(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool 
 }
 
 func filterLogStreams(
-	cw *cloudwatchlogs.CloudWatchLogs,
+	cwl *cloudwatchlogs.CloudWatchLogs,
 	logGroupName *string,
 	logStreamPrefix *string,
 ) []*string {
@@ -55,11 +55,11 @@ func filterLogStreams(
 	input.SetLogGroupName(*logGroupName)
 	input.SetLogStreamNamePrefix(*logStreamPrefix)
 	var streamNames = make([]*string, 0)
-	cw.DescribeLogStreamsPages(&input, func(out *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+	cwl.DescribeLogStreamsPages(&input, func(out *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
 		for _, stream := range out.LogStreams {
 			streamNames = append(streamNames, stream.LogStreamName)
 		}
-		return lastPage
+		return len(out.LogStreams) > 0
 	})
 	return streamNames
 }
@@ -131,12 +131,12 @@ func main() {
 		Region: aws.String(endpoints.UsEast1RegionID),
 	}
 	sess := session.Must(session.NewSession(&config))
-	cw := cloudwatchlogs.New(sess)
-	input := configure(cw)
+	cwl := cloudwatchlogs.New(sess)
+	input := configure(cwl)
 	formatter = configureFormatter()
 
 	for {
-		err := cw.FilterLogEventsPages(input, handlePage)
+		err := cwl.FilterLogEventsPages(input, handlePage)
 		if err != nil {
 			fmt.Println("Error", err)
 			os.Exit(2)
