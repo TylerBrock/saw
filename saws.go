@@ -15,8 +15,8 @@ import (
 	"github.com/fatih/color"
 )
 
-var formatter = colorjson.NewFormatter()
 var lastSeenTime *int64
+var formatter *colorjson.Formatter
 
 func updateLastSeenTime(ts *int64) {
 	if lastSeenTime == nil || *ts > *lastSeenTime {
@@ -64,44 +64,16 @@ func filterLogStreams(
 	return streamNames
 }
 
-func main() {
+func configure(cw *cloudwatchlogs.CloudWatchLogs) *cloudwatchlogs.FilterLogEventsInput {
 	logGroupName := flag.String("group", "", "Log group to stream")
 	logStreamPrefix := flag.String("prefix", "", "Log stream prefix")
 	filterPattern := flag.String("filter", "", "Filter pattern")
-	expand := flag.Bool("expand", false, "Expand JSON log lines")
-	//raw := flag.Bool("raw", false, "Disable all color and adornment of log lines")
-	rawString := flag.Bool("rawString", false, "Write raw JSON strings")
-	invert := flag.Bool("invert-color", false, "Inverts key color from white to black")
-	noColor := flag.Bool("no-color", false, "Disable color output")
-
 	flag.Parse()
-
-	if *expand {
-		formatter.Indent = 4
-	}
-
-	if *rawString {
-		formatter.RawStrings = true
-	}
-
-	if *invert {
-		formatter.KeyColor = color.New(color.FgWhite)
-	}
 
 	if *logGroupName == "" {
 		fmt.Println("Error: Must provide a logGroup!")
 		os.Exit(1)
 	}
-
-	if *noColor {
-		color.NoColor = true // disables colorized output
-	}
-
-	config := aws.Config{
-		Region: aws.String(endpoints.UsEast1RegionID),
-	}
-	sess := session.Must(session.NewSession(&config))
-	cw := cloudwatchlogs.New(sess)
 
 	input := cloudwatchlogs.FilterLogEventsInput{}
 	input.SetInterleaved(true)
@@ -122,8 +94,49 @@ func main() {
 		input.SetFilterPattern(*filterPattern)
 	}
 
+	return &input
+}
+
+func configureFormatter() *colorjson.Formatter {
+	expand := flag.Bool("expand", false, "Expand JSON log lines")
+	//raw := flag.Bool("raw", false, "Disable all color and adornment of log lines")
+	rawString := flag.Bool("rawString", false, "Write raw JSON strings")
+	invert := flag.Bool("invert-color", false, "Inverts key color from white to black")
+	noColor := flag.Bool("no-color", false, "Disable color output")
+	flag.Parse()
+
+	var formatter = colorjson.NewFormatter()
+
+	if *expand {
+		formatter.Indent = 4
+	}
+
+	if *rawString {
+		formatter.RawStrings = true
+	}
+
+	if *invert {
+		formatter.KeyColor = color.New(color.FgWhite)
+	}
+
+	if *noColor {
+		color.NoColor = true // disables colorized output
+	}
+
+	return formatter
+}
+
+func main() {
+	config := aws.Config{
+		Region: aws.String(endpoints.UsEast1RegionID),
+	}
+	sess := session.Must(session.NewSession(&config))
+	cw := cloudwatchlogs.New(sess)
+	input := configure(cw)
+	formatter = configureFormatter()
+
 	for {
-		err := cw.FilterLogEventsPages(&input, handlePage)
+		err := cw.FilterLogEventsPages(input, handlePage)
 		if err != nil {
 			fmt.Println("Error", err)
 			os.Exit(2)
