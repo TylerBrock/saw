@@ -184,7 +184,7 @@ func (c *configuration) getFormatter() *colorjson.Formatter {
 	}
 
 	if c.invert {
-		formatter.KeyColor = color.New(color.FgWhite)
+		formatter.KeyColor = color.New(color.FgBlack)
 	}
 
 	if c.noColor {
