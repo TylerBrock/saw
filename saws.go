@@ -17,6 +17,8 @@ import (
 	"github.com/fatih/color"
 )
 
+const version = "v0.0.1"
+
 var lastSeenTime *int64
 var formatter *colorjson.Formatter
 
@@ -124,7 +126,13 @@ func configure() *configuration {
 	flag.BoolVar(&config.rawString, "rawString", false, "Write raw JSON strings")
 	flag.BoolVar(&config.invert, "invert", false, "Inverts key color from white to black")
 	flag.BoolVar(&config.noColor, "no-color", false, "Disable color output")
+	showVersion := flag.Bool("version", false, "Print version string")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	return &config
 }
