@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/TylerBrock/colorjson"
@@ -54,19 +56,52 @@ func filterLogStreams(
 	input := cloudwatchlogs.DescribeLogStreamsInput{}
 	input.SetLogGroupName(*logGroupName)
 	input.SetLogStreamNamePrefix(*logStreamPrefix)
-	var streamNames = make([]*string, 0)
-	cwl.DescribeLogStreamsPages(&input, func(out *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+
+	streams := make([]*cloudwatchlogs.LogStream, 0)
+	cwl.DescribeLogStreamsPages(&input, func(
+		out *cloudwatchlogs.DescribeLogStreamsOutput,
+		lastPage bool,
+	) bool {
 		for _, stream := range out.LogStreams {
-			streamNames = append(streamNames, stream.LogStreamName)
+			streams = append(streams, stream)
 		}
-		return len(out.LogStreams) > 0
+		return !lastPage
 	})
+
+	// FilerLogEvents can only take 100 streams so lets sort by LastEventTimestamp
+	// (descending) and take only the names of the most recent 100.
+	sort.Slice(streams, func(i int, j int) bool {
+		return *streams[i].LastEventTimestamp > *streams[j].LastEventTimestamp
+	})
+
+	var streamNames = make([]*string, 0)
+
+	for _, stream := range streams[:100] {
+		fmt.Println(stream.LogStreamName, aws.MillisecondsTimeValue(stream.LastEventTimestamp))
+		streamNames = append(streamNames, stream.LogStreamName)
+	}
 	return streamNames
+}
+
+func getTime(timeStr *string) (time.Time, error) {
+	relative, err := time.ParseDuration(*timeStr)
+	if err == nil {
+		return time.Now().Add(relative), nil
+	}
+
+	absolute, err := time.Parse(time.RFC3339, *timeStr)
+	if err == nil {
+		return absolute, nil
+	}
+
+	return time.Time{}, errors.New("Could not parse relative or absolute time")
 }
 
 func configure(cw *cloudwatchlogs.CloudWatchLogs) *cloudwatchlogs.FilterLogEventsInput {
 	logGroupName := flag.String("group", "", "Log group to stream")
 	logStreamPrefix := flag.String("prefix", "", "Log stream prefix")
+	startTime := flag.String("start", "", "Start time")
+	endTime := flag.String("end", "", "End time")
 	filterPattern := flag.String("filter", "", "Filter pattern")
 	flag.Parse()
 
@@ -78,7 +113,22 @@ func configure(cw *cloudwatchlogs.CloudWatchLogs) *cloudwatchlogs.FilterLogEvent
 	input := cloudwatchlogs.FilterLogEventsInput{}
 	input.SetInterleaved(true)
 	input.SetLogGroupName(*logGroupName)
-	input.SetStartTime(aws.TimeUnixMilli(time.Now()))
+
+	absoluteStartTime := time.Now()
+	if *startTime != "" {
+		st, err := getTime(startTime)
+		if err == nil {
+			absoluteStartTime = st
+		}
+	}
+	input.SetStartTime(aws.TimeUnixMilli(absoluteStartTime))
+
+	if *endTime != "" {
+		et, err := getTime(startTime)
+		if err == nil {
+			input.SetEndTime(aws.TimeUnixMilli(et))
+		}
+	}
 
 	if len(*logStreamPrefix) > 0 {
 		streamNamePointers := filterLogStreams(cw, logGroupName, logStreamPrefix)
