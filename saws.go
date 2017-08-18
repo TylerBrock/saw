@@ -188,7 +188,7 @@ func (c *configuration) getFormatter() *colorjson.Formatter {
 	}
 
 	if c.noColor {
-		color.NoColor = true // disables colorized output
+		color.NoColor = true
 	}
 
 	return formatter
