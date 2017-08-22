@@ -17,7 +17,7 @@ import (
 	"github.com/fatih/color"
 )
 
-const version = "v0.0.1"
+const version = "0.0.1"
 
 var lastSeenTime *int64
 var formatter *colorjson.Formatter
@@ -130,7 +130,7 @@ func configure() *configuration {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println(version)
+		fmt.Printf("v%s\n", version)
 		os.Exit(0)
 	}
 
