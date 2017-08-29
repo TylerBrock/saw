@@ -5,13 +5,13 @@
   branch = "master"
   name = "github.com/TylerBrock/colorjson"
   packages = ["."]
-  revision = "9f0b4681c3e11243b6e9a069668e1508adecd257"
+  revision = "b5ebcda8ff4fa88cb382dda3f7c8bf952e48894f"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudwatchlogs","service/sts"]
-  revision = "3546c9128687af50e4bcedac5b1ffdd593db0c83"
-  version = "v1.10.28"
+  revision = "e63027ac6e05f6d4ae9f97ce0294d7468ca652da"
+  version = "v1.10.33"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -24,6 +24,12 @@
   packages = ["."]
   revision = "20b96f641a5ea98f2f8619ff4f3e061cff4833bd"
   version = "v1.28.2"
+
+[[projects]]
+  name = "github.com/inconshreveable/mousetrap"
+  packages = ["."]
+  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  version = "v1.0"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -45,13 +51,25 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/spf13/cobra"
+  packages = ["."]
+  revision = "2df9a531813370438a4d79bfc33e21f58063ed87"
+
+[[projects]]
+  name = "github.com/spf13/pflag"
+  packages = ["."]
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "07c182904dbd53199946ba614a412c61d3c548f5"
+  revision = "2d6f6f883a06fc0d5f4b14a81e4c28705ea64c15"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cfc2ecbbb8d5ef71fc317b61ccca07edc336edd496ee51c8bbd50d5467066a4c"
+  inputs-digest = "a73646080fc2a4c63de5dfdc7709d2db5ec9025d0c5e67a493d3c26e2a4e9d23"
   solver-name = "gps-cdcl"
   solver-version = 1
