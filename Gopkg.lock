@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/cloudwatchlogs","service/sts"]
-  revision = "e63027ac6e05f6d4ae9f97ce0294d7468ca652da"
-  version = "v1.10.33"
+  revision = "5b4d64c21c9af31b5c870528001cd2e3ef37bfe0"
+  version = "v1.10.34"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -65,7 +65,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "2d6f6f883a06fc0d5f4b14a81e4c28705ea64c15"
+  revision = "bb24a47a89eac6c1227fbcb2ae37a8b9ed323366"
 
 [solve-meta]
   analyzer-name = "dep"
