@@ -33,5 +33,5 @@ var StreamsCommand = &cobra.Command{
 }
 
 func init() {
-	StreamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "prefix filter")
+	StreamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
 }
