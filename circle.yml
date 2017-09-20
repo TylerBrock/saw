@@ -1,5 +1,7 @@
 deployment:
     branch: master
-    tag: /v[0-9]+(\.[0-9]+)*/
+    tag: /v[0-9]+(\.[0-9]+)*(-.*)*/
     commands:
-      - ./scripts/deploy.sh
+    owner: user
+    commands:
+      - curl -sL https://git.io/goreleaser | bash

@@ -1,0 +1,14 @@
+builds:
+  - binary: saw
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+archive:
+  format: tar.gz
+  files:
+    - LICENSE
