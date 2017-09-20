@@ -22,3 +22,6 @@ fpm:
   maintainer: Tyler Brock <tyler.brock@gmail.com>
   description: Fast, multipurpose tool for AWS CloudWatch Logs
   license: MIT
+  formats:
+    - deb
+    - rpm
