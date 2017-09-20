@@ -19,6 +19,8 @@ Features
     - `saw watch production` Stream logs from production log group
     - `saw watch production --prefix api` Stream logs from production log group with prefix "api"
 
+TODO:
+
 - Relative or Absolute start and end time specification
     - `saw dump --start 2017-01-01` Stream logs starting from the start of 2017
     - `saw dump --start -1m` Steam logs starting 1 minute ago
