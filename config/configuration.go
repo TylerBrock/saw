@@ -57,6 +57,7 @@ func (c *Configuration) DescribeLogStreamsInput() *cloudwatchlogs.DescribeLogStr
 	if c.Prefix != "" {
 		input.SetLogStreamNamePrefix(c.Prefix)
 	}
+
 	return &input
 }
 

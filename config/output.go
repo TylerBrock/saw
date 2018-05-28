@@ -9,7 +9,7 @@ type OutputConfiguration struct {
 	Expand         bool
 	Raw            bool
 	RawString      bool
-	ShowStreamName bool
+	HideStreamName bool
 	Invert         bool
 	NoColor        bool
 }

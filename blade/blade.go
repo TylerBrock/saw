@@ -67,19 +67,32 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 
 func (b *Blade) StreamEvents() {
 	var lastSeenTime *int64
+	var seenEventIDs map[string]bool
 	formatter := b.output.Formatter()
 	input := b.config.FilterLogEventsInput()
+
+	clearSeenEventIds := func() {
+		seenEventIDs = make(map[string]bool, 0)
+	}
+
+	addSeenEventIDs := func(id *string) {
+		seenEventIDs[*id] = true
+	}
 
 	updateLastSeenTime := func(ts *int64) {
 		if lastSeenTime == nil || *ts > *lastSeenTime {
 			lastSeenTime = ts
+			clearSeenEventIds()
 		}
 	}
 
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 		for _, event := range page.Events {
-			printEvent(formatter, event)
 			updateLastSeenTime(event.Timestamp)
+			if _, seen := seenEventIDs[*event.EventId]; !seen {
+				printEvent(formatter, event)
+				addSeenEventIDs(event.EventId)
+			}
 		}
 		return !lastPage
 	}
