@@ -16,7 +16,7 @@ var GroupsCommand = &cobra.Command{
 	Short: "List log groups",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		b := blade.NewBlade(&groupsConfig)
+		b := blade.NewBlade(&groupsConfig, nil)
 		logGroups := b.GetLogGroups()
 		for _, group := range logGroups {
 			fmt.Println(*group.LogGroupName)

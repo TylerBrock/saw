@@ -23,7 +23,7 @@ var StreamsCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		streamsConfig.Group = args[0]
-		b := blade.NewBlade(&streamsConfig)
+		b := blade.NewBlade(&streamsConfig, nil)
 
 		logStreams := b.GetLogStreams()
 		for _, stream := range logStreams {
@@ -34,4 +34,6 @@ var StreamsCommand = &cobra.Command{
 
 func init() {
 	StreamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
+	StreamsCommand.Flags().StringVar(&streamsConfig.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
+	StreamsCommand.Flags().BoolVar(&streamsConfig.Descending, "descending", false, "order streams descending")
 }

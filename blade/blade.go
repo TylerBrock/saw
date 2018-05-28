@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -17,10 +18,11 @@ import (
 
 type Blade struct {
 	config *config.Configuration
+	output *config.OutputConfiguration
 	cwl    *cloudwatchlogs.CloudWatchLogs
 }
 
-func NewBlade(config *config.Configuration) *Blade {
+func NewBlade(config *config.Configuration, outputConfig *config.OutputConfiguration) *Blade {
 	blade := Blade{}
 	region := endpoints.UsEast1RegionID
 	awsConfig := aws.Config{Region: &region}
@@ -28,6 +30,7 @@ func NewBlade(config *config.Configuration) *Blade {
 
 	blade.cwl = cloudwatchlogs.New(sess)
 	blade.config = config
+	blade.output = outputConfig
 
 	return &blade
 }
@@ -65,7 +68,7 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 
 func (b *Blade) StreamEvents() {
 	var lastSeenTime *int64
-	formatter := b.config.Formatter()
+	formatter := b.output.Formatter()
 	input := b.config.FilterLogEventsInput()
 
 	updateLastSeenTime := func(ts *int64) {
@@ -75,22 +78,8 @@ func (b *Blade) StreamEvents() {
 	}
 
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
-		red := color.New(color.FgRed).SprintFunc()
-		white := color.New(color.FgWhite).SprintFunc()
-
 		for _, event := range page.Events {
-			str := aws.StringValue(event.Message)
-			bytes := []byte(str)
-			date := aws.MillisecondsTimeValue(event.Timestamp)
-			dateStr := date.Format(time.RFC3339)
-			streamStr := aws.StringValue(event.LogStreamName)
-			jl := map[string]interface{}{}
-			if err := json.Unmarshal(bytes, &jl); err != nil {
-				fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
-			} else {
-				output, _ := formatter.Marshal(jl)
-				fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
-			}
+			printEvent(formatter, event)
 			updateLastSeenTime(event.Timestamp)
 		}
 		return !lastPage
@@ -106,6 +95,24 @@ func (b *Blade) StreamEvents() {
 			input.SetStartTime(*lastSeenTime)
 		}
 		time.Sleep(1 * time.Second)
+	}
+}
+
+func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) {
+	red := color.New(color.FgRed).SprintFunc()
+	white := color.New(color.FgWhite).SprintFunc()
+
+	str := aws.StringValue(event.Message)
+	bytes := []byte(str)
+	date := aws.MillisecondsTimeValue(event.Timestamp)
+	dateStr := date.Format(time.RFC3339)
+	streamStr := aws.StringValue(event.LogStreamName)
+	jl := map[string]interface{}{}
+	if err := json.Unmarshal(bytes, &jl); err != nil {
+		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
+	} else {
+		output, _ := formatter.Marshal(jl)
+		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
 	}
 }
 

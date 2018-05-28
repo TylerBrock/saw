@@ -4,26 +4,21 @@ import (
 	"errors"
 	"time"
 
-	"github.com/TylerBrock/colorjson"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/fatih/color"
 )
 
 const maxLimit = 50
 
 type Configuration struct {
-	Group     string
-	Prefix    string
-	Start     string
-	End       string
-	Filter    string
-	Region    string
-	Expand    bool
-	Raw       bool
-	RawString bool
-	Invert    bool
-	NoColor   bool
+	Group      string
+	Prefix     string
+	Start      string
+	End        string
+	Filter     string
+	Region     string
+	Descending bool
+	OrderBy    string
 }
 
 func getTime(timeStr string) (time.Time, error) {
@@ -51,6 +46,8 @@ func (c *Configuration) DescribeLogGroupsInput() *cloudwatchlogs.DescribeLogGrou
 func (c *Configuration) DescribeLogStreamsInput() *cloudwatchlogs.DescribeLogStreamsInput {
 	input := cloudwatchlogs.DescribeLogStreamsInput{}
 	input.SetLogGroupName(c.Group)
+	input.SetDescending(c.Descending)
+	input.SetOrderBy(c.OrderBy)
 	if c.Prefix != "" {
 		input.SetLogStreamNamePrefix(c.Prefix)
 	}
@@ -83,26 +80,4 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 	}
 
 	return &input
-}
-
-func (c *Configuration) Formatter() *colorjson.Formatter {
-	var formatter *colorjson.Formatter = colorjson.NewFormatter()
-
-	if c.Expand {
-		formatter.Indent = 4
-	}
-
-	if c.RawString {
-		formatter.RawStrings = true
-	}
-
-	if c.Invert {
-		formatter.KeyColor = color.New(color.FgBlack)
-	}
-
-	if c.NoColor {
-		color.NoColor = true
-	}
-
-	return formatter
 }
