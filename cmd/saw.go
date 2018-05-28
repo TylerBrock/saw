@@ -21,6 +21,6 @@ func init() {
 	SawCommand.AddCommand(StreamsCommand)
 	SawCommand.AddCommand(VersionCommand)
 	SawCommand.AddCommand(WatchCommand)
-	//Saw.AddCommand(Get)
+	SawCommand.AddCommand(GetCommand)
 	//Saw.AddCommand(Delete)
 }

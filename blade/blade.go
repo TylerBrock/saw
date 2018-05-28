@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sort"
 	"time"
 
 	"github.com/TylerBrock/colorjson"
@@ -114,21 +113,4 @@ func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLo
 		output, _ := formatter.Marshal(jl)
 		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
 	}
-}
-
-func topStreamNames(streams []*cloudwatchlogs.LogStream) []*string {
-	// FilerLogEvents can only take 100 streams so lets sort by LastEventTimestamp
-	// (descending) and take only the names of the most recent 100.
-	sort.Slice(streams, func(i int, j int) bool {
-		return *streams[i].LastEventTimestamp > *streams[j].LastEventTimestamp
-	})
-
-	var streamNames = make([]*string, 0)
-
-	for _, stream := range streams[:100] {
-		fmt.Println(stream.LogStreamName, aws.MillisecondsTimeValue(stream.LastEventTimestamp))
-		streamNames = append(streamNames, stream.LogStreamName)
-	}
-
-	return streamNames
 }
