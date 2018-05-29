@@ -17,6 +17,25 @@ archive:
   files:
     - LICENSE
 
+brew:
+  name: saw
+
+  github:
+    owner: TylerBrock
+    name: homebrew-saw
+
+  commit_author:
+    name: TylerBrock
+    email: tyler.brock@gmail.com
+
+  folder: Formula
+  homepage: "https://github.com/TylerBrock/saw"
+  description: "Fast, multipurpose tool for AWS CloudWatch Logs"
+
+  build_dependencies:
+    - go
+    - dep
+
 git:
   short_hash: true
 
