@@ -16,12 +16,15 @@ archive:
   files:
     - LICENSE
 
-fpm:
-  vendor: Tyler Brock
-  homepage: https://github.com/TylerBrock/saw
-  maintainer: Tyler Brock <tyler.brock@gmail.com>
-  description: Fast, multipurpose tool for AWS CloudWatch Logs
-  license: MIT
-  formats:
-    - deb
-    - rpm
+git:
+  short_hash: true
+
+  #nfpm:
+  #  vendor: Tyler Brock
+  #  homepage: https://github.com/TylerBrock/saw
+  #  maintainer: Tyler Brock <tyler.brock@gmail.com>
+  #  description: Fast, multipurpose tool for AWS CloudWatch Logs
+  #  license: MIT
+  #  formats:
+  #    - deb
+  #    - rpm
