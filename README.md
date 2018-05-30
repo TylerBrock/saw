@@ -13,6 +13,14 @@ brew tap TylerBrock/saw
 brew install saw
 ```
 
+### Linux (binary)
+
+```sh
+wget <path_to_binary_release>
+tar -zxvf <name_of_binary_release>
+mv saw /usr/local/bin
+```
+
 Usage
 -----
 
