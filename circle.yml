@@ -1,7 +1,7 @@
+# circle.yml
 deployment:
-    branch: master
+  tag:
     tag: /v[0-9]+(\.[0-9]+)*(-.*)*/
-    commands:
     owner: user
     commands:
       - curl -sL https://git.io/goreleaser | bash
