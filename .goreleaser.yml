@@ -24,8 +24,6 @@ brew:
     owner: TylerBrock
     name: homebrew-saw
 
-  download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
-
   commit_author:
     name: TylerBrock
     email: tyler.brock@gmail.com
