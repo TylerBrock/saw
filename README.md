@@ -3,6 +3,40 @@ saw
 
 `saw` is a command line tool for shredding Amazon CloudWatch logs.
 
+Installation
+------------
+
+### Mac OS X (homebrew)
+
+```sh
+brew tap TylerBrock/saw
+brew install saw
+```
+
+Usage
+-----
+
+- Basic
+    ```sh
+    # Get list of log groups
+    saw groups
+
+    # Get list of streams for production log group
+    saw streams production
+    ```
+
+- Watch
+    ```sh
+    # Watch production log group
+    saw watch production
+
+    # Watch production log group streams for api
+    saw watch production --prefix api
+
+    # Watch production log group streams for api and filter for "error"
+    saw watch production --prefix api --filter error
+    ```
+
 Features
 --------
 
