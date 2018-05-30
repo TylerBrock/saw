@@ -34,10 +34,6 @@ brew:
   homepage: "https://github.com/TylerBrock/saw"
   description: "Fast, multipurpose tool for AWS CloudWatch Logs"
 
-  build_dependencies:
-    - go
-    - dep
-
 git:
   short_hash: true
 
