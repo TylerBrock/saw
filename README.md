@@ -15,11 +15,33 @@ brew install saw
 
 ### Linux (binary)
 
+#### Redhat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
 ```sh
-wget <path_to_binary_release>
-tar -zxvf <name_of_binary_release>
-mv saw /usr/local/bin
+rpm -i <link_to_rpm_you_need_from_releases>
 ```
+
+#### Debian Based Distributions (Debian/Ubuntu)
+```sh
+wget <link_to_deb_you_need_from_releases>
+sudo dpkg -i <the_deb_name>
+```
+
+#### Builds
+
+We publish pre-built binaries as well as debs and rpms for the following OS:
+ - Darwin (Mac OS X)
+ - Linux
+ - FreeBSD
+
+On these platforms:
+ - amd64 (64 bit x86)
+ - armv6 (32 bit ARM v6)
+ - armv7 (32 bit ARM v7)
+ - arm64 (64 bit ARM v8)
+
+Currently we don't publish any 32-bit or Windows builds. If this causes hardship, let me know.
+
+I don't think saw works in the Windows terminal emulator as is.
 
 Usage
 -----
