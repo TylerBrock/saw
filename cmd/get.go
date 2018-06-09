@@ -29,6 +29,7 @@ var GetCommand = &cobra.Command{
 			streams := b.GetLogStreams()
 			if len(streams) == 0 {
 				fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
+				fmt.Printf("To view available streams: `saw streams %s`\n", getConfig.Group)
 				os.Exit(3)
 			}
 			getConfig.Streams = streams

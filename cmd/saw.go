@@ -5,12 +5,13 @@ import (
 )
 
 var SawCommand = &cobra.Command{
-	Use:   "saw",
+	Use:   "saw <command>",
 	Short: "A fast, multipurpose tool for AWS CloudWatch Logs",
 	Long:  "Saw is a fast, multipurpose tool for cutting through AWS CloudWatch Logs.",
 	Example: `  saw version
-  saw groups --prefix "/aws"
-  saw streams production --prefix "api"`,
+  saw groups --prefix "aws"
+  saw streams production --prefix "api"
+  saw watch production --prefix "api" --filter "error"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.HelpFunc()(cmd, args)
 	},
