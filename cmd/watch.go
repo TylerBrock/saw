@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
@@ -25,7 +27,12 @@ var WatchCommand = &cobra.Command{
 		watchConfig.Group = args[0]
 		b := blade.NewBlade(&watchConfig, &outputConfig)
 		if watchConfig.Prefix != "" {
-			watchConfig.Streams = b.GetLogStreams()
+			streams := b.GetLogStreams()
+			if len(streams) == 0 {
+				fmt.Printf("No streams found in %s with prefix %s\n", watchConfig.Group, watchConfig.Prefix)
+				os.Exit(3)
+			}
+			watchConfig.Streams = streams
 		}
 		b.StreamEvents()
 	},

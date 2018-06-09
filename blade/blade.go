@@ -65,6 +65,22 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 	return streams
 }
 
+func (b *Blade) GetEvents() {
+	input := b.config.FilterLogEventsInput()
+
+	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
+		for _, event := range page.Events {
+			fmt.Println(*event.Message)
+		}
+		return !lastPage
+	}
+	err := b.cwl.FilterLogEventsPages(input, handlePage)
+	if err != nil {
+		fmt.Println("Error", err)
+		os.Exit(2)
+	}
+}
+
 func (b *Blade) StreamEvents() {
 	var lastSeenTime *int64
 	var seenEventIDs map[string]bool

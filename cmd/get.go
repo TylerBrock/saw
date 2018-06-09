@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
+	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
 	"github.com/spf13/cobra"
 )
@@ -10,22 +13,32 @@ import (
 var getConfig config.Configuration
 
 var GetCommand = &cobra.Command{
-	Use:   "get",
+	Use:   "get <log group>",
 	Short: "Get log events",
 	Long:  "",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return errors.New("listing streams requires log group argument")
+			return errors.New("getting events requires log group argument")
 		}
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		//b := blade.NewBlade(&getConfig)
+		getConfig.Group = args[0]
+		b := blade.NewBlade(&getConfig, nil)
+		if getConfig.Prefix != "" {
+			streams := b.GetLogStreams()
+			if len(streams) == 0 {
+				fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
+				os.Exit(3)
+			}
+			getConfig.Streams = streams
+		}
+		b.GetEvents()
 	},
 }
 
 func init() {
-	GetCommand.Flags().StringVar(&groupsConfig.Prefix, "prefix", "", "log group prefix filter")
-	GetCommand.Flags().StringVar(&groupsConfig.Start, "start", "", "start getting the logs from this point")
-	GetCommand.Flags().StringVar(&groupsConfig.End, "end", "now", "stop getting the logs at this point")
+	GetCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
+	GetCommand.Flags().StringVar(&getConfig.Start, "start", "", "start getting the logs from this point")
+	GetCommand.Flags().StringVar(&getConfig.End, "end", "now", "stop getting the logs at this point")
 }
