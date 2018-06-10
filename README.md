@@ -13,6 +13,14 @@ brew tap TylerBrock/saw
 brew install saw
 ```
 
+### Linux (Arch Linux)
+
+```sh
+pacaur -S saw
+# OR
+trizen -S saw
+```
+
 ### Linux (binary)
 
 #### Redhat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
