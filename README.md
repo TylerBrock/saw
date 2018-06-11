@@ -90,7 +90,6 @@ I don't think saw works in the Windows terminal emulator as is.
     - `--expand` Explode JSON objects using indenting
     - `--rawString` Print JSON strings instead of escaping ("\n", ...)
     - `--invert` Invert white colors to black for light color schemes
-    - `--no-color` Disable color output entirely
 
 - Filter logs using CloudWatch patterns
     - `--filter foo` Filter logs for the text "foo"
