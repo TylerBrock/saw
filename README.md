@@ -1,29 +1,39 @@
-saw
-====
+# saw
 
-`saw` is a command line tool for shredding Amazon CloudWatch logs.
+`saw` is a multi-purpose command line tool for AWS CloudWatch Logs
 
-Installation
-------------
+![Saw Gif](https://media.giphy.com/media/3fiohCfMJAKf7lhnPp/giphy.gif)
 
-### Mac OS X (homebrew)
+## Installation
+
+### Mac OS X
 
 ```sh
 brew tap TylerBrock/saw
 brew install saw
 ```
 
-### Linux (Arch Linux)
+### Linux
+
+#### Arch Linux
 
 ```sh
+# Using pacaur
 pacaur -S saw
-# OR
+
+# Using trizen
 trizen -S saw
+
+# Using yaourt
+yaourt -S saw
+
+# Using makepkg
+git clone https://aur.archlinux.org/saw.git
+cd saw
+makepkg -sri
 ```
 
-### Linux (binary)
-
-#### Redhat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
+#### Red Hat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
 ```sh
 rpm -i <link_to_rpm_you_need_from_releases>
 ```
@@ -51,8 +61,7 @@ Currently we don't publish any 32-bit or Windows builds. If this causes hardship
 
 I don't think saw works in the Windows terminal emulator as is.
 
-Usage
------
+## Usage
 
 - Basic
     ```sh
@@ -75,8 +84,7 @@ Usage
     saw watch production --prefix api --filter error
     ```
 
-Features
---------
+## Features
 
 - Colorized output that can be formatted in various ways
     - `--expand` Explode JSON objects using indenting
