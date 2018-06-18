@@ -9,7 +9,6 @@ import (
 	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/fatih/color"
@@ -23,9 +22,9 @@ type Blade struct {
 
 func NewBlade(config *config.Configuration, outputConfig *config.OutputConfiguration) *Blade {
 	blade := Blade{}
-	region := endpoints.UsEast1RegionID
-	awsConfig := aws.Config{Region: &region}
-	sess := session.Must(session.NewSession(&awsConfig))
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 
 	blade.cwl = cloudwatchlogs.New(sess)
 	blade.config = config
