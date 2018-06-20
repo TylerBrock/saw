@@ -1,6 +1,12 @@
-# saw
+# Saw
 
-`saw` is a multi-purpose command line tool for AWS CloudWatch Logs
+`saw` is a multi-purpose tool for tailing AWS CloudWatch Logs
+
+## Fake Praise
+
+ - "It's like tail -f for CloudWatch!"
+ - "Yesss, I don't have to install python just to use this"
+ - "This guy gets it, pretty print that JSON son"
 
 ![Saw Gif](https://media.giphy.com/media/3fiohCfMJAKf7lhnPp/giphy.gif)
 
