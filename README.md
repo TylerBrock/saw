@@ -1,12 +1,6 @@
 # Saw
 
-`saw` is a multi-purpose tool for tailing AWS CloudWatch Logs
-
-## Fake Praise
-
- - "It's like tail -f for CloudWatch!"
- - "Yesss, I don't have to install python just to use this"
- - "This guy gets it, pretty print that JSON son"
+`saw` is a multi-purpose tool for streaming AWS CloudWatch Logs
 
 ![Saw Gif](https://media.giphy.com/media/3fiohCfMJAKf7lhnPp/giphy.gif)
 
@@ -21,7 +15,7 @@ brew install saw
 
 ### Linux
 
-#### Arch Linux
+#### Arch Linux (source)
 
 ```sh
 # Using pacaur
@@ -87,8 +81,19 @@ sudo dpkg -i <the_deb_name>
     - `saw watch production` Stream logs from production log group
     - `saw watch production --prefix api` Stream logs from production log group with prefix "api"
 
-TODO:
+## Profile and Region Support
 
+By default Saw uses the region and credentials in your default profile. We are working on adding support for easily switching these via a CLI flag. For now, to switch region or profile:
+
+```sh
+export AWS_PROFILE='work_profile'
+export AWS_REGION='us-west-1'
+```
+
+## TODO
+
+- AWS region and profile selection via CLI flags
+- Bash completion of log groups + (streams?)
 - Relative or Absolute start and end time specification
     - `saw dump --start 2017-01-01` Stream logs starting from the start of 2017
     - `saw dump --start -1m` Steam logs starting 1 minute ago
