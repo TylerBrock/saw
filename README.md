@@ -103,7 +103,6 @@ export AWS_REGION='us-west-1'
 
 ## TODO
 
-- AWS region and profile selection via CLI flags
 - Bash completion of log groups + (streams?)
 - Relative or Absolute start and end time specification
     - `saw dump --start 2017-01-01` Stream logs starting from the start of 2017
