@@ -24,7 +24,7 @@ var GetCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		getConfig.Group = args[0]
-		b := blade.NewBlade(&getConfig, nil)
+		b := blade.NewBlade(&getConfig, &awsConfig, nil)
 		if getConfig.Prefix != "" {
 			streams := b.GetLogStreams()
 			if len(streams) == 0 {

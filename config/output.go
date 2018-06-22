@@ -10,6 +10,7 @@ type OutputConfiguration struct {
 	Raw            bool
 	RawString      bool
 	HideStreamName bool
+	HideDate       bool
 	Invert         bool
 	NoColor        bool
 }

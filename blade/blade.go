@@ -16,15 +16,33 @@ import (
 
 type Blade struct {
 	config *config.Configuration
+	aws    *config.AWSConfiguration
 	output *config.OutputConfiguration
 	cwl    *cloudwatchlogs.CloudWatchLogs
 }
 
-func NewBlade(config *config.Configuration, outputConfig *config.OutputConfiguration) *Blade {
+func NewBlade(
+	config *config.Configuration,
+	awsConfig *config.AWSConfiguration,
+	outputConfig *config.OutputConfiguration,
+) *Blade {
 	blade := Blade{}
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
+	awsCfg := aws.Config{}
+
+	if awsConfig.Region != "" {
+		awsCfg.Region = &awsConfig.Region
+	}
+
+	awsSessionOpts := session.Options{
+		Config:            awsCfg,
 		SharedConfigState: session.SharedConfigEnable,
-	}))
+	}
+
+	if awsConfig.Profile != "" {
+		awsSessionOpts.Profile = awsConfig.Profile
+	}
+
+	sess := session.Must(session.NewSessionWithOptions(awsSessionOpts))
 
 	blade.cwl = cloudwatchlogs.New(sess)
 	blade.config = config

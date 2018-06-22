@@ -17,7 +17,6 @@ type Configuration struct {
 	Start      string
 	End        string
 	Filter     string
-	Region     string
 	Streams    []*cloudwatchlogs.LogStream
 	Descending bool
 	OrderBy    string

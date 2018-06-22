@@ -23,7 +23,7 @@ var StreamsCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		streamsConfig.Group = args[0]
-		b := blade.NewBlade(&streamsConfig, nil)
+		b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
 
 		logStreams := b.GetLogStreams()
 		for _, stream := range logStreams {

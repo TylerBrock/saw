@@ -25,7 +25,7 @@ var WatchCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		watchConfig.Group = args[0]
-		b := blade.NewBlade(&watchConfig, &outputConfig)
+		b := blade.NewBlade(&watchConfig, &awsConfig, &outputConfig)
 		if watchConfig.Prefix != "" {
 			streams := b.GetLogStreams()
 			if len(streams) == 0 {

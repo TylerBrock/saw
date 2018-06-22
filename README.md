@@ -83,9 +83,20 @@ sudo dpkg -i <the_deb_name>
 
 ## Profile and Region Support
 
-By default Saw uses the region and credentials in your default profile. We are working on adding support for easily switching these via a CLI flag. For now, to switch region or profile:
+By default Saw uses the region and credentials in your default profile. You can override these to your liking using the command line flags:
 
 ```sh
+# Use personal profile
+saw groups --profile personal
+
+# Use us-west-1 region
+saw groups --region us-west-1
+```
+
+Alternatively you can hard code these in your shell's init scripts (bashrc, zshrc, etc...):
+
+```sh
+# Export profile and region that override the default
 export AWS_PROFILE='work_profile'
 export AWS_REGION='us-west-1'
 ```

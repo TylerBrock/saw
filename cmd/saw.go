@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/TylerBrock/saw/config"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +18,8 @@ var SawCommand = &cobra.Command{
 	},
 }
 
+var awsConfig config.AWSConfiguration
+
 func init() {
 	SawCommand.AddCommand(GroupsCommand)
 	SawCommand.AddCommand(StreamsCommand)
@@ -24,4 +27,6 @@ func init() {
 	SawCommand.AddCommand(WatchCommand)
 	SawCommand.AddCommand(GetCommand)
 	//Saw.AddCommand(Delete)
+	SawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
+	SawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
 }
