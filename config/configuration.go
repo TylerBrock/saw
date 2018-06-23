@@ -9,8 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 )
 
-const maxLimit = 50
-
 type Configuration struct {
 	Group      string
 	Prefix     string
