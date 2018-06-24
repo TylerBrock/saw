@@ -26,7 +26,6 @@ func init() {
 	SawCommand.AddCommand(VersionCommand)
 	SawCommand.AddCommand(WatchCommand)
 	SawCommand.AddCommand(GetCommand)
-	//Saw.AddCommand(Delete)
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
 }
