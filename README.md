@@ -67,6 +67,15 @@ sudo dpkg -i <the_deb_name>
     saw watch production --prefix api --filter error
     ```
 
+- Get
+    ```sh
+    # Get production log group for the last 2 hours
+    saw get production --start -2h
+
+    # Get production log group for api between 26th June 2018 and 28th June 2018
+    saw get production --prefix api --start 2018-06-26 --end 2018-06-28
+    ```
+
 ## Features
 
 - Colorized output that can be formatted in various ways
