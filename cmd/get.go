@@ -40,6 +40,16 @@ var GetCommand = &cobra.Command{
 
 func init() {
 	GetCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
-	GetCommand.Flags().StringVar(&getConfig.Start, "start", "", "start getting the logs from this point")
-	GetCommand.Flags().StringVar(&getConfig.End, "end", "now", "stop getting the logs at this point")
+	GetCommand.Flags().StringVar(
+		&getConfig.Start,
+		"start",
+		"",
+		"start getting the logs from this point. Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h). Valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".",
+	)
+	GetCommand.Flags().StringVar(
+		&getConfig.End,
+		"end",
+		"now",
+		"stop getting the logs at this point. Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h). Valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".",
+	)
 }
