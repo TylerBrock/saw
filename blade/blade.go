@@ -9,6 +9,7 @@ import (
 	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/fatih/color"
@@ -34,8 +35,9 @@ func NewBlade(
 	}
 
 	awsSessionOpts := session.Options{
-		Config:            awsCfg,
-		SharedConfigState: session.SharedConfigEnable,
+		Config:                  awsCfg,
+		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
+		SharedConfigState:       session.SharedConfigEnable,
 	}
 
 	if awsConfig.Profile != "" {
