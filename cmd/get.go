@@ -44,12 +44,16 @@ func init() {
 		&getConfig.Start,
 		"start",
 		"",
-		"start getting the logs from this point. Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h). Valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".",
+		`start getting the logs from this point
+Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
+Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
 	GetCommand.Flags().StringVar(
 		&getConfig.End,
-		"end",
+		"stop",
 		"now",
-		"stop getting the logs at this point. Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h). Valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".",
+		`stop getting the logs at this point
+Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
+Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
 }
