@@ -13,9 +13,9 @@ import (
 var watchConfig config.Configuration
 var outputConfig config.OutputConfiguration
 
-var WatchCommand = &cobra.Command{
+var watchCommand = &cobra.Command{
 	Use:   "watch <log group>",
-	Short: "Continously stream log events",
+	Short: "Continuously stream log events",
 	Long:  "",
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
