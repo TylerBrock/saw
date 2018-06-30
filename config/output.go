@@ -16,7 +16,7 @@ type OutputConfiguration struct {
 }
 
 func (c *OutputConfiguration) Formatter() *colorjson.Formatter {
-	var formatter *colorjson.Formatter = colorjson.NewFormatter()
+	formatter := colorjson.NewFormatter()
 
 	if c.Expand {
 		formatter.Indent = 4
