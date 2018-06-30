@@ -15,6 +15,7 @@ import (
 	"github.com/fatih/color"
 )
 
+// A Blade is a Saw execution instance
 type Blade struct {
 	config *config.Configuration
 	aws    *config.AWSConfiguration
@@ -22,6 +23,7 @@ type Blade struct {
 	cwl    *cloudwatchlogs.CloudWatchLogs
 }
 
+// NewBlade creates a new Blade with CloudWatchLogs instance from provided config
 func NewBlade(
 	config *config.Configuration,
 	awsConfig *config.AWSConfiguration,
@@ -53,6 +55,7 @@ func NewBlade(
 	return &blade
 }
 
+// GetLogGroups gets the log groups from AWS given the blade configuration
 func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 	input := b.config.DescribeLogGroupsInput()
 	groups := make([]*cloudwatchlogs.LogGroup, 0)
@@ -68,6 +71,7 @@ func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 	return groups
 }
 
+// GetLogStreams gets the log streams from AWS given the blade configuration
 func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 	input := b.config.DescribeLogStreamsInput()
 	streams := make([]*cloudwatchlogs.LogStream, 0)
@@ -84,6 +88,7 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 	return streams
 }
 
+// GetEvents gets events from AWS given the blade configuration
 func (b *Blade) GetEvents() {
 	input := b.config.FilterLogEventsInput()
 
@@ -100,6 +105,7 @@ func (b *Blade) GetEvents() {
 	}
 }
 
+// StreamEvents continuously prints log events to the console
 func (b *Blade) StreamEvents() {
 	var lastSeenTime *int64
 	var seenEventIDs map[string]bool
@@ -145,6 +151,7 @@ func (b *Blade) StreamEvents() {
 	}
 }
 
+// printEvent prints a filtered CloudWatch log event using the provided formatter
 func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) {
 	red := color.New(color.FgRed).SprintFunc()
 	white := color.New(color.FgWhite).SprintFunc()
