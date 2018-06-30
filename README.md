@@ -1,6 +1,8 @@
 # Saw
 
-`saw` is a multi-purpose tool for streaming AWS CloudWatch Logs
+`saw` is a multi-purpose tool for AWS CloudWatch Logs
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/TylerBrock/saw)](https://goreportcard.com/report/github.com/TylerBrock/saw)
 
 ![Saw Gif](https://media.giphy.com/media/3fiohCfMJAKf7lhnPp/giphy.gif)
 
