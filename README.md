@@ -75,7 +75,7 @@ sudo dpkg -i <the_deb_name>
     saw get production --start -2h
 
     # Get production log group for api between 26th June 2018 and 28th June 2018
-    saw get production --prefix api --start 2018-06-26 --end 2018-06-28
+    saw get production --prefix api --start 2018-06-26 --stop 2018-06-28
     ```
 
 ## Features
@@ -114,8 +114,8 @@ export AWS_REGION='us-west-1'
 
 ## TODO
 
-- Bash completion of log groups + (streams?)
-- Relative or Absolute start and end time specification
-    - `saw dump --start 2017-01-01` Stream logs starting from the start of 2017
-    - `saw dump --start -1m` Steam logs starting 1 minute ago
-    - `saw dump --start -3h --end -2h` Stream logs from 3 - 2 hours ago
+- Bash + ZSH completion of log groups + (streams?)
+- Create log streams and groups
+- Delete log streams and groups
+- Add flags to disable date and stream name output for watch command
+- Basic tests
