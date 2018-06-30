@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var SawCommand = &cobra.Command{
+var sawCommand = &cobra.Command{
 	Use:   "saw <command>",
 	Short: "A fast, multipurpose tool for AWS CloudWatch Logs",
 	Long:  "Saw is a fast, multipurpose tool for cutting through AWS CloudWatch Logs.",
@@ -21,11 +21,11 @@ var SawCommand = &cobra.Command{
 var awsConfig config.AWSConfiguration
 
 func init() {
-	SawCommand.AddCommand(GroupsCommand)
-	SawCommand.AddCommand(StreamsCommand)
-	SawCommand.AddCommand(VersionCommand)
-	SawCommand.AddCommand(WatchCommand)
-	SawCommand.AddCommand(GetCommand)
-	SawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
-	SawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
+	sawCommand.AddCommand(groupsCommand)
+	sawCommand.AddCommand(streamsCommand)
+	sawCommand.AddCommand(versionCommand)
+	sawCommand.AddCommand(watchCommand)
+	sawCommand.AddCommand(getCommand)
+	sawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
+	sawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
 }

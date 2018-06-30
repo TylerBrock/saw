@@ -11,7 +11,7 @@ import (
 // TODO: colorize based on logGroup prefix (/aws/lambda, /aws/kinesisfirehose, etc...)
 var groupsConfig config.Configuration
 
-var GroupsCommand = &cobra.Command{
+var groupsCommand = &cobra.Command{
 	Use:   "groups",
 	Short: "List log groups",
 	Long:  "",
@@ -25,5 +25,5 @@ var GroupsCommand = &cobra.Command{
 }
 
 func init() {
-	GroupsCommand.Flags().StringVar(&groupsConfig.Prefix, "prefix", "", "log group prefix filter")
+	groupsCommand.Flags().StringVar(&groupsConfig.Prefix, "prefix", "", "log group prefix filter")
 }

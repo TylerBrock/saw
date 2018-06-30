@@ -12,7 +12,7 @@ import (
 
 var getConfig config.Configuration
 
-var GetCommand = &cobra.Command{
+var getCommand = &cobra.Command{
 	Use:   "get <log group>",
 	Short: "Get log events",
 	Long:  "",
@@ -39,8 +39,8 @@ var GetCommand = &cobra.Command{
 }
 
 func init() {
-	GetCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
-	GetCommand.Flags().StringVar(
+	getCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
+	getCommand.Flags().StringVar(
 		&getConfig.Start,
 		"start",
 		"",
@@ -48,7 +48,7 @@ func init() {
 Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
-	GetCommand.Flags().StringVar(
+	getCommand.Flags().StringVar(
 		&getConfig.End,
 		"stop",
 		"now",

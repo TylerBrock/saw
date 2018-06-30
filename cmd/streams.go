@@ -11,7 +11,7 @@ import (
 
 var streamsConfig config.Configuration
 
-var StreamsCommand = &cobra.Command{
+var streamsCommand = &cobra.Command{
 	Use:   "streams <log group>",
 	Short: "List streams in log group",
 	Long:  "",
@@ -33,7 +33,7 @@ var StreamsCommand = &cobra.Command{
 }
 
 func init() {
-	StreamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
-	StreamsCommand.Flags().StringVar(&streamsConfig.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
-	StreamsCommand.Flags().BoolVar(&streamsConfig.Descending, "descending", false, "order streams descending")
+	streamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
+	streamsCommand.Flags().StringVar(&streamsConfig.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
+	streamsCommand.Flags().BoolVar(&streamsConfig.Descending, "descending", false, "order streams descending")
 }
