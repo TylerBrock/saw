@@ -46,6 +46,31 @@ wget <link_to_deb_you_need_from_releases>
 sudo dpkg -i <the_deb_name>
 ```
 
+### Windows 
+
+#### Manual Compile
+
+- [Install go](https://golang.org/doc/install)
+
+- Clone Repository
+    ```DOS .bat
+    go get github.com/TylerBrock/saw
+    cd %GOPATH%/src/github.com/TylerBrock/saw
+    go get
+    go install
+    ```
+
+- Add %GOPATH%/bin to your path (optional)
+    ```DOS .bat
+    saw ...
+    ```
+
+- If not in your path run from gopath/bin
+    ```DOS .bat
+    cd %GOPATH%/bin
+    saw ...
+    ```
+
 ## Usage
 
 - Basic
