@@ -52,7 +52,7 @@ sudo dpkg -i <the_deb_name>
 
 - [Install go](https://golang.org/doc/install)
 
-- Clone Repository
+- Clone Repository and Install
     ```DOS .bat
     go get github.com/TylerBrock/saw
     cd %GOPATH%/src/github.com/TylerBrock/saw
@@ -61,11 +61,13 @@ sudo dpkg -i <the_deb_name>
     ```
 
 - Add %GOPATH%/bin to your path (optional)
+
+- Run
     ```DOS .bat
     saw ...
     ```
 
-- If not in your path run from gopath/bin
+- Run from gopath/bin (If not in your path)
     ```DOS .bat
     cd %GOPATH%/bin
     saw ...
