@@ -56,4 +56,5 @@ Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
+	getCommand.Flags().StringVar(&getConfig.Filter, "filter", "", "event filter pattern")
 }
