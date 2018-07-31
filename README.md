@@ -74,6 +74,9 @@ sudo dpkg -i <the_deb_name>
     # Get production log group for the last 2 hours
     saw get production --start -2h
 
+    # Get production log group for the last 2 hours and filter for "error"
+    saw get production --start -2h --filter error
+
     # Get production log group for api between 26th June 2018 and 28th June 2018
     saw get production --prefix api --start 2018-06-26 --stop 2018-06-28
     ```
