@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.8
+
+- Support filter option for get (@cynipe)
+
 ## v0.1.7
 
 - Fix usage output for get command
