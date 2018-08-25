@@ -90,11 +90,12 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 
 // GetEvents gets events from AWS given the blade configuration
 func (b *Blade) GetEvents() {
+	formatter := b.output.Formatter()
 	input := b.config.FilterLogEventsInput()
 
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 		for _, event := range page.Events {
-			fmt.Println(*event.Message)
+			fmt.Print(formatEvent(formatter, event))
 		}
 		return !lastPage
 	}
@@ -131,7 +132,7 @@ func (b *Blade) StreamEvents() {
 		for _, event := range page.Events {
 			updateLastSeenTime(event.Timestamp)
 			if _, seen := seenEventIDs[*event.EventId]; !seen {
-				printEvent(formatter, event)
+				fmt.Print(formatEvent(formatter, event))
 				addSeenEventIDs(event.EventId)
 			}
 		}
@@ -151,8 +152,8 @@ func (b *Blade) StreamEvents() {
 	}
 }
 
-// printEvent prints a filtered CloudWatch log event using the provided formatter
-func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) {
+// formatEvent returns a CloudWatch log event as a formatted string using the provided formatter
+func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) string {
 	red := color.New(color.FgRed).SprintFunc()
 	white := color.New(color.FgWhite).SprintFunc()
 
@@ -162,10 +163,11 @@ func printEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLo
 	dateStr := date.Format(time.RFC3339)
 	streamStr := aws.StringValue(event.LogStreamName)
 	jl := map[string]interface{}{}
+
 	if err := json.Unmarshal(bytes, &jl); err != nil {
-		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
-	} else {
-		output, _ := formatter.Marshal(jl)
-		fmt.Printf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
+		return fmt.Sprintf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
 	}
+
+	output, _ := formatter.Marshal(jl)
+	return fmt.Sprintf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
 }

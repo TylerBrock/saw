@@ -11,6 +11,7 @@ import (
 )
 
 var getConfig config.Configuration
+var getOutputConfig config.OutputConfiguration
 
 var getCommand = &cobra.Command{
 	Use:   "get <log group>",
@@ -24,7 +25,7 @@ var getCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		getConfig.Group = args[0]
-		b := blade.NewBlade(&getConfig, &awsConfig, nil)
+		b := blade.NewBlade(&getConfig, &awsConfig, &getOutputConfig)
 		if getConfig.Prefix != "" {
 			streams := b.GetLogStreams()
 			if len(streams) == 0 {
@@ -57,4 +58,7 @@ Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
 	getCommand.Flags().StringVar(&getConfig.Filter, "filter", "", "event filter pattern")
+	getCommand.Flags().BoolVar(&getOutputConfig.Expand, "expand", false, "indent JSON log messages")
+	getCommand.Flags().BoolVar(&getOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
+	getCommand.Flags().BoolVar(&getOutputConfig.RawString, "rawString", false, "print JSON strings without escaping")
 }

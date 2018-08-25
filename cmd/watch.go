@@ -11,7 +11,7 @@ import (
 )
 
 var watchConfig config.Configuration
-var outputConfig config.OutputConfiguration
+var watchOutputConfig config.OutputConfiguration
 
 var watchCommand = &cobra.Command{
 	Use:   "watch <log group>",
@@ -25,7 +25,7 @@ var watchCommand = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		watchConfig.Group = args[0]
-		b := blade.NewBlade(&watchConfig, &awsConfig, &outputConfig)
+		b := blade.NewBlade(&watchConfig, &awsConfig, &watchOutputConfig)
 		if watchConfig.Prefix != "" {
 			streams := b.GetLogStreams()
 			if len(streams) == 0 {
@@ -42,7 +42,7 @@ var watchCommand = &cobra.Command{
 func init() {
 	watchCommand.Flags().StringVar(&watchConfig.Prefix, "prefix", "", "log stream prefix filter")
 	watchCommand.Flags().StringVar(&watchConfig.Filter, "filter", "", "event filter pattern")
-	watchCommand.Flags().BoolVar(&outputConfig.Expand, "expand", false, "indent JSON log messages")
-	watchCommand.Flags().BoolVar(&outputConfig.Invert, "invert", false, "invert colors for light terminal themes")
-	watchCommand.Flags().BoolVar(&outputConfig.RawString, "rawString", false, "print JSON strings without escaping")
+	watchCommand.Flags().BoolVar(&watchOutputConfig.Expand, "expand", false, "indent JSON log messages")
+	watchCommand.Flags().BoolVar(&watchOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
+	watchCommand.Flags().BoolVar(&watchOutputConfig.RawString, "rawString", false, "print JSON strings without escaping")
 }
