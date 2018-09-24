@@ -102,6 +102,7 @@ sudo dpkg -i <the_deb_name>
     - `--expand` Explode JSON objects using indenting
     - `--rawString` Print JSON strings instead of escaping ("\n", ...)
     - `--invert` Invert white colors to black for light color schemes
+    - `--raw`, or `--pretty`, for `watch` and `get` commands respectively, toggles display of the timestamp and stream name prefix.
 
 - Filter logs using CloudWatch patterns
     - `--filter foo` Filter logs for the text "foo"

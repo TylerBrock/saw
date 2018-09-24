@@ -58,6 +58,7 @@ Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
 	getCommand.Flags().StringVar(&getConfig.Filter, "filter", "", "event filter pattern")
+	getCommand.Flags().BoolVar(&getOutputConfig.Pretty, "pretty", false, "print timestamp and stream name prefix")
 	getCommand.Flags().BoolVar(&getOutputConfig.Expand, "expand", false, "indent JSON log messages")
 	getCommand.Flags().BoolVar(&getOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
 	getCommand.Flags().BoolVar(&getOutputConfig.RawString, "rawString", false, "print JSON strings without escaping")

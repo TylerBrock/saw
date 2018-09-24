@@ -95,7 +95,11 @@ func (b *Blade) GetEvents() {
 
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 		for _, event := range page.Events {
-			fmt.Print(formatEvent(formatter, event))
+			if b.output.Pretty {
+				fmt.Println(formatEvent(formatter, event))
+			} else {
+				fmt.Println(*event.Message)
+			}
 		}
 		return !lastPage
 	}
@@ -132,7 +136,11 @@ func (b *Blade) StreamEvents() {
 		for _, event := range page.Events {
 			updateLastSeenTime(event.Timestamp)
 			if _, seen := seenEventIDs[*event.EventId]; !seen {
-				fmt.Print(formatEvent(formatter, event))
+				if b.output.Raw {
+					fmt.Println(*event.Message)
+				} else {
+					fmt.Println(formatEvent(formatter, event))
+				}
 				addSeenEventIDs(event.EventId)
 			}
 		}
@@ -165,9 +173,9 @@ func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredL
 	jl := map[string]interface{}{}
 
 	if err := json.Unmarshal(bytes, &jl); err != nil {
-		return fmt.Sprintf("[%s] (%s) %s\n", red(dateStr), white(streamStr), str)
+		return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), str)
 	}
 
 	output, _ := formatter.Marshal(jl)
-	return fmt.Sprintf("[%s] (%s) %s\n", red(dateStr), white(streamStr), output)
+	return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), output)
 }
