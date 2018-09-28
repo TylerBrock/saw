@@ -136,5 +136,4 @@ export AWS_REGION='us-west-1'
 - Bash + ZSH completion of log groups + (streams?)
 - Create log streams and groups
 - Delete log streams and groups
-- Add flags to disable date and stream name output for watch command
 - Basic tests

@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.0
+
+- Added --raw flag to watch subcommand, disables decorations (will-ockmore)
+- Added --pretty flag to get subcommand, enables decorations (will-ockmore)
+
+The defaults are for the watch output to be pretty and the get output to be raw.
+
 ## v0.1.8
 
 - Support filter option for get (@cynipe)
