@@ -6,6 +6,12 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/TylerBrock/saw)](https://goreportcard.com/report/github.com/TylerBrock/saw)
 
+## Run from Docker
+
+```sh
+docker run --rm -it -v ~/.aws:/home/.aws tbrock/saw watch production
+```
+
 ## Installation
 
 ### Mac OS X
