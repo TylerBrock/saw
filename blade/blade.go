@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/TylerBrock/colorjson"
@@ -136,11 +137,14 @@ func (b *Blade) StreamEvents() {
 		for _, event := range page.Events {
 			updateLastSeenTime(event.Timestamp)
 			if _, seen := seenEventIDs[*event.EventId]; !seen {
+				var message string
 				if b.output.Raw {
-					fmt.Println(*event.Message)
+					message = *event.Message
 				} else {
-					fmt.Println(formatEvent(formatter, event))
+					message = formatEvent(formatter, event)
 				}
+				message = strings.TrimRight(message, "\n")
+				fmt.Println(message)
 				addSeenEventIDs(event.EventId)
 			}
 		}
