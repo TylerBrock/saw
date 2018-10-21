@@ -2,7 +2,8 @@
 
 ## v0.2.1
 
-- Feature - deduplicate newlines event messages (@klichukb)
+- Feature - de-duplicate newlines event messages (@klichukb)
+- Feature - Added Dockerfile (@shnhrrsn)
 
 ## v0.2.0
 
