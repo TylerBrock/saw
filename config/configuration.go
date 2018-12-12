@@ -20,15 +20,26 @@ type Configuration struct {
 	OrderBy    string
 }
 
-func getTime(timeStr string) (time.Time, error) {
+// Define the order of time formats to attempt to use to parse our input absolute time
+var absoluteTimeFormats = []string{
+	time.RFC3339,
+}
+
+// Parse the input string into a time.Time object.
+// Provide the currentTime as a parameter to support relative time.
+func getTime(timeStr string, currentTime time.Time) (time.Time, error) {
 	relative, err := time.ParseDuration(timeStr)
 	if err == nil {
-		return time.Now().Add(relative), nil
+		return currentTime.Add(relative), nil
 	}
 
-	absolute, err := time.Parse(time.RFC3339, timeStr)
-	if err == nil {
-		return absolute, nil
+  // Iterate over available absolute time formats until we find one that works
+	for _, timeFormat := range absoluteTimeFormats {
+		absolute, err := time.Parse(timeFormat, timeStr)
+
+		if err == nil {
+			return absolute, err
+		}
 	}
 
 	return time.Time{}, errors.New("Could not parse relative or absolute time")
@@ -67,9 +78,10 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 		input.SetLogStreamNames(c.TopStreamNames())
 	}
 
-	absoluteStartTime := time.Now()
+	currentTime := time.Now()
+	absoluteStartTime := currentTime
 	if c.Start != "" {
-		st, err := getTime(c.Start)
+		st, err := getTime(c.Start, currentTime)
 		if err == nil {
 			absoluteStartTime = st
 		}
@@ -77,7 +89,7 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 	input.SetStartTime(aws.TimeUnixMilli(absoluteStartTime))
 
 	if c.End != "" {
-		et, err := getTime(c.End)
+		et, err := getTime(c.End, currentTime)
 		if err == nil {
 			input.SetEndTime(aws.TimeUnixMilli(et))
 		}
