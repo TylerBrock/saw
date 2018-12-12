@@ -23,6 +23,9 @@ type Configuration struct {
 // Define the order of time formats to attempt to use to parse our input absolute time
 var absoluteTimeFormats = []string{
 	time.RFC3339,
+
+  "2006-01-02", // Simple date
+  "2006-01-02 15:04:05", // Simple date & time
 }
 
 // Parse the input string into a time.Time object.
