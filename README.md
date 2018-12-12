@@ -137,6 +137,9 @@ export AWS_PROFILE='work_profile'
 export AWS_REGION='us-west-1'
 ```
 
+## Run Tests
+From root of repository: `go test -v ./...`
+
 ## TODO
 
 - Bash + ZSH completion of log groups + (streams?)
