@@ -24,8 +24,8 @@ type Configuration struct {
 var absoluteTimeFormats = []string{
 	time.RFC3339,
 
-  "2006-01-02", // Simple date
-  "2006-01-02 15:04:05", // Simple date & time
+	"2006-01-02",          // Simple date
+	"2006-01-02 15:04:05", // Simple date & time
 }
 
 // Parse the input string into a time.Time object.
@@ -36,7 +36,7 @@ func getTime(timeStr string, currentTime time.Time) (time.Time, error) {
 		return currentTime.Add(relative), nil
 	}
 
-  // Iterate over available absolute time formats until we find one that works
+	// Iterate over available absolute time formats until we find one that works
 	for _, timeFormat := range absoluteTimeFormats {
 		absolute, err := time.Parse(timeFormat, timeStr)
 
