@@ -33,7 +33,13 @@ func TestGetTimeAbsoluteRFC3339(t *testing.T) {
 func TestGetTimeAbsoluteSimpleDate(t *testing.T) {
 	absoluteTime1, err := getTime("2018-06-26", testTimeNow)
 
-	if err != nil && absoluteTime1.Year() == 2018 && absoluteTime1.Month() == 6 && absoluteTime1.Day() == 26 && absoluteTime1.Hour() == 0 && absoluteTime1.Minute() == 0 && absoluteTime1.Second() == 0 {
+	if err != nil &&
+		absoluteTime1.Year() == 2018 &&
+		absoluteTime1.Month() == 6 &&
+		absoluteTime1.Day() == 26 &&
+		absoluteTime1.Hour() == 0 &&
+		absoluteTime1.Minute() == 0 &&
+		absoluteTime1.Second() == 0 {
 		t.Errorf("Expected to parse absolute time from simple string. Error: %s", err)
 	}
 }
@@ -41,7 +47,13 @@ func TestGetTimeAbsoluteSimpleDate(t *testing.T) {
 func TestGetTimeAbsoluteSimpleDateAndTime(t *testing.T) {
 	absoluteTime1, err := getTime("2018-06-26 12:43:30", testTimeNow)
 
-	if err != nil && absoluteTime1.Year() == 2018 && absoluteTime1.Month() == 6 && absoluteTime1.Day() == 26 && absoluteTime1.Hour() == 12 && absoluteTime1.Minute() == 43 && absoluteTime1.Second() == 30 {
+	if err != nil &&
+		absoluteTime1.Year() == 2018 &&
+		absoluteTime1.Month() == 6 &&
+		absoluteTime1.Day() == 26 &&
+		absoluteTime1.Hour() == 12 &&
+		absoluteTime1.Minute() == 43 &&
+		absoluteTime1.Second() == 30 {
 		t.Errorf("Expected to parse absolute time from simple string. Error: %s", err)
 	}
 }
