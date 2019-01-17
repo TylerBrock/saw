@@ -4,6 +4,8 @@ WORKDIR $GOPATH/src/github.com/TylerBrock/saw
 # Setup some basic dependencies that aren’t bundled in the build image
 ADD https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 /bin/dep
 RUN chmod +x /bin/dep
+
+# Add ca-certificates for TLS/SSL
 RUN apk add --no-cache git ca-certificates
 
 # Ensure deps separately for a cache layer during rebuilds

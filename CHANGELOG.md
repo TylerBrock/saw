@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2
+
+ - Added support for parsing additonal time formats (@andrewpage)
+
 ## v0.2.1
 
 - Feature - de-duplicate newlines event messages (@klichukb)
