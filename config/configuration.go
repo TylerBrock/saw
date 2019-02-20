@@ -72,6 +72,14 @@ func (c *Configuration) DescribeLogStreamsInput() *cloudwatchlogs.DescribeLogStr
 	return &input
 }
 
+func (c *Configuration) DescribeRecentLogStreamsInput() *cloudwatchlogs.DescribeLogStreamsInput {
+	input := cloudwatchlogs.DescribeLogStreamsInput{}
+	input.SetLogGroupName(c.Group)
+	input.SetDescending(true)
+	input.SetOrderBy("LastEventTime")
+	return &input
+}
+
 func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsInput {
 	input := cloudwatchlogs.FilterLogEventsInput{}
 	input.SetInterleaved(true)
