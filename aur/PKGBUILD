@@ -7,7 +7,7 @@ arch=('i686' 'x86_64' 'armv6h' 'armv7h')
 provides=('saw')
 url="https://github.com/TylerBrock/$pkgname"
 license=('MIT')
-makedepends=('go' 'git' 'dep')
+makedepends=('go' 'git')
 source=("https://github.com/TylerBrock/$pkgname/archive/v$pkgver.tar.gz")
 md5sums=('a9daec2bee15e595e71424d720767d8b')
 
@@ -17,10 +17,8 @@ prepare() {
 }
 
 build() {
-  export GOPATH="${srcdir}/go"
-  export PATH="$PATH:$srcdir/go/bin"
+  export GO111MODULE=on
   cd "${srcdir}/go/src/github.com/TylerBrock/${pkgname}"
-  dep ensure
   go build .
 }
 
