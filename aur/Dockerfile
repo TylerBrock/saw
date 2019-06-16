@@ -1,4 +1,4 @@
-FROM pritunl/archlinux
+FROM archlinux/base
 
 RUN pacman -S base-devel --noconfirm
 
