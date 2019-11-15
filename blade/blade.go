@@ -97,7 +97,7 @@ func (b *Blade) GetEvents() {
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 		for _, event := range page.Events {
 			if b.output.Pretty {
-				fmt.Println(formatEvent(formatter, event))
+				fmt.Println(formatEvent(formatter, event, b.config.Group))
 			} else {
 				fmt.Println(*event.Message)
 			}
@@ -141,7 +141,7 @@ func (b *Blade) StreamEvents() {
 				if b.output.Raw {
 					message = *event.Message
 				} else {
-					message = formatEvent(formatter, event)
+					message = formatEvent(formatter, event, b.config.Group)
 				}
 				message = strings.TrimRight(message, "\n")
 				fmt.Println(message)
@@ -165,8 +165,9 @@ func (b *Blade) StreamEvents() {
 }
 
 // formatEvent returns a CloudWatch log event as a formatted string using the provided formatter
-func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) string {
+func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent, group string) string {
 	red := color.New(color.FgRed).SprintFunc()
+	yellow := color.New(color.FgYellow).SprintFunc()
 	white := color.New(color.FgWhite).SprintFunc()
 
 	str := aws.StringValue(event.Message)
@@ -177,9 +178,9 @@ func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredL
 	jl := map[string]interface{}{}
 
 	if err := json.Unmarshal(bytes, &jl); err != nil {
-		return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), str)
+		return fmt.Sprintf("[%s] (%s:%s) %s", red(dateStr), yellow(group), white(streamStr), str)
 	}
 
 	output, _ := formatter.Marshal(jl)
-	return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), output)
+	return fmt.Sprintf("[%s] (%s:%s) %s", red(dateStr), yellow(group), white(streamStr), output)
 }
