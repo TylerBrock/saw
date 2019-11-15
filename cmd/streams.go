@@ -25,7 +25,7 @@ var streamsCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		err := runMultiGroup(args[0], func(group string) {
 			streamsConfig := streamsConfigGlobal
-			streamsConfig.Group = args[0]
+			streamsConfig.Group = group
 			b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
 
 			logStreams := b.GetLogStreams()
