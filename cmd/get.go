@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var getConfig config.Configuration
+var getConfigGlobal config.Configuration
 var getOutputConfig config.OutputConfiguration
 
 var getCommand = &cobra.Command{
@@ -24,25 +24,33 @@ var getCommand = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		getConfig.Group = args[0]
-		b := blade.NewBlade(&getConfig, &awsConfig, &getOutputConfig)
-		if getConfig.Prefix != "" {
-			streams := b.GetLogStreams()
-			if len(streams) == 0 {
-				fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
-				fmt.Printf("To view available streams: `saw streams %s`\n", getConfig.Group)
-				os.Exit(3)
+		err := runMultiGroup(args[0], func(group string) {
+			getConfig := getConfigGlobal
+			getConfig.Group = group
+			b := blade.NewBlade(&getConfig, &awsConfig, &getOutputConfig)
+			if getConfig.Prefix != "" {
+				streams := b.GetLogStreams()
+				if len(streams) == 0 {
+					fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
+					fmt.Printf("To view available streams: `saw streams %s`\n", getConfig.Group)
+					os.Exit(3)
+				}
+				getConfig.Streams = streams
 			}
-			getConfig.Streams = streams
+			b.GetEvents()
+		})
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
-		b.GetEvents()
 	},
 }
 
 func init() {
-	getCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
+	getCommand.Flags().StringVar(&getConfigGlobal.Prefix, "prefix", "", "log group prefix filter")
 	getCommand.Flags().StringVar(
-		&getConfig.Start,
+		&getConfigGlobal.Start,
 		"start",
 		"",
 		`start getting the logs from this point
@@ -50,14 +58,14 @@ Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
 	getCommand.Flags().StringVar(
-		&getConfig.End,
+		&getConfigGlobal.End,
 		"stop",
 		"now",
 		`stop getting the logs at this point
 Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	)
-	getCommand.Flags().StringVar(&getConfig.Filter, "filter", "", "event filter pattern")
+	getCommand.Flags().StringVar(&getConfigGlobal.Filter, "filter", "", "event filter pattern")
 	getCommand.Flags().BoolVar(&getOutputConfig.Pretty, "pretty", false, "print timestamp and stream name prefix")
 	getCommand.Flags().BoolVar(&getOutputConfig.Expand, "expand", false, "indent JSON log messages")
 	getCommand.Flags().BoolVar(&getOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
