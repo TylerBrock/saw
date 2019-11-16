@@ -36,25 +36,33 @@ func init() {
 }
 
 func runMultiGroup(pattern string, fn func(string)) error {
+	var groups []string
+
 	re, err := regexp.Compile(pattern)
 	if err != nil {
 		return fmt.Errorf("invalid <log group> pattern: %s", err)
 	}
 
 	b := blade.NewBlade(&config.Configuration{}, &awsConfig, nil)
-
-	var wg sync.WaitGroup
-	for _, group := range b.GetLogGroups() {
-		name := group.LogGroupName
-		if name == nil || !re.MatchString(*name) {
+	for _, g := range b.GetLogGroups() {
+		group := g.LogGroupName
+		if group == nil || !re.MatchString(*group) {
 			continue
 		}
 
+		groups = append(groups, *group)
+	}
+	if len(groups) == 0 {
+		return fmt.Errorf("no groups found matching pattern: %s", pattern)
+	}
+
+	var wg sync.WaitGroup
+	for _, group := range groups {
 		wg.Add(1)
 		go func(group string) {
 			defer wg.Done()
 			fn(group)
-		}(*name)
+		}(group)
 	}
 
 	wg.Wait()
