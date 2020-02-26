@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/TylerBrock/saw/config"
+	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
 )
 
@@ -21,11 +22,17 @@ var SawCommand = &cobra.Command{
 var awsConfig config.AWSConfiguration
 
 func init() {
-	SawCommand.AddCommand(groupsCommand)
-	SawCommand.AddCommand(streamsCommand)
-	SawCommand.AddCommand(versionCommand)
-	SawCommand.AddCommand(watchCommand)
-	SawCommand.AddCommand(getCommand)
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
+
+	zsh.Gen(SawCommand).FlagCompletion(zsh.ActionMap{
+		"region": zsh.ActionValues(awsRegions()...),
+		"profile": zsh.ActionCallback(func(args []string) zsh.Action {
+			if profiles, err := awsProfiles(); err != nil {
+				return zsh.ActionMessage(err.Error())
+			} else {
+				return zsh.ActionValues(profiles...)
+			}
+		}),
+	})
 }

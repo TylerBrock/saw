@@ -72,8 +72,9 @@ func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 	return groups
 }
 
-// GetLogStreams gets the log streams from AWS given the blade configuration
-func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
+// GetLogStreams gets the log streams from AWS given the blade configuration limited to given pages.
+// If pages is 0 or below all pages are returned.
+func (b *Blade) GetLogStreams(pages int) []*cloudwatchlogs.LogStream {
 	input := b.config.DescribeLogStreamsInput()
 	streams := make([]*cloudwatchlogs.LogStream, 0)
 	b.cwl.DescribeLogStreamsPages(input, func(
@@ -83,7 +84,10 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 		for _, stream := range out.LogStreams {
 			streams = append(streams, stream)
 		}
-		return !lastPage
+		if pages > 1 {
+			pages--
+		}
+		return !lastPage && pages != 1
 	})
 
 	return streams

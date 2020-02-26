@@ -109,6 +109,9 @@ func (c *Configuration) TopStreamNames() []*string {
 	// FilerLogEvents can only take 100 streams so lets sort by LastEventTimestamp
 	// (descending) and take only the names of the most recent 100.
 	sort.Slice(c.Streams, func(i int, j int) bool {
+        if c.Streams[i].LastEventTimestamp == nil || c.Streams[j].LastEventTimestamp == nil {
+          return true
+        }
 		return *c.Streams[i].LastEventTimestamp > *c.Streams[j].LastEventTimestamp
 	})
 

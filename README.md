@@ -140,9 +140,15 @@ export AWS_REGION='us-west-1'
 ## Run Tests
 From root of repository: `go test -v ./...`
 
+## Zsh Completion
+
+```sh
+saw _zsh_completion
+```
+
 ## TODO
 
-- Bash + ZSH completion of log groups + (streams?)
+- Bash completion of log groups + (streams?)
 - Create log streams and groups
 - Delete log streams and groups
 - Basic tests

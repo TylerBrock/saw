@@ -2,9 +2,8 @@ package cmd
 
 import (
 	"fmt"
-
-	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
+	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
 )
 
@@ -16,14 +15,19 @@ var groupsCommand = &cobra.Command{
 	Short: "List log groups",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		b := blade.NewBlade(&groupsConfig, &awsConfig, nil)
-		logGroups := b.GetLogGroups()
-		for _, group := range logGroups {
-			fmt.Println(*group.LogGroupName)
+		for _, name := range groupNames() {
+			fmt.Println(name)
 		}
 	},
 }
 
 func init() {
 	groupsCommand.Flags().StringVar(&groupsConfig.Prefix, "prefix", "", "log group prefix filter")
+	SawCommand.AddCommand(groupsCommand)
+
+	zsh.Gen(groupsCommand).FlagCompletion(zsh.ActionMap{
+		"prefix": zsh.ActionCallback(func(args []string) zsh.Action {
+			return zsh.ActionMultiParts('/', groupNames()...)
+		}),
+	})
 }

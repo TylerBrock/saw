@@ -7,6 +7,7 @@ import (
 
 	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
+	zsh "github.com/rsteube/cobra-zsh-gen"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +28,7 @@ var getCommand = &cobra.Command{
 		getConfig.Group = args[0]
 		b := blade.NewBlade(&getConfig, &awsConfig, &getOutputConfig)
 		if getConfig.Prefix != "" {
-			streams := b.GetLogStreams()
+			streams := b.GetLogStreams(0)
 			if len(streams) == 0 {
 				fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
 				fmt.Printf("To view available streams: `saw streams %s`\n", getConfig.Group)
@@ -62,4 +63,22 @@ Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	getCommand.Flags().BoolVar(&getOutputConfig.Expand, "expand", false, "indent JSON log messages")
 	getCommand.Flags().BoolVar(&getOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
 	getCommand.Flags().BoolVar(&getOutputConfig.RawString, "rawString", false, "print JSON strings without escaping")
+	SawCommand.AddCommand(getCommand)
+
+	zsh.Gen(getCommand).PositionalCompletion(
+		zsh.ActionCallback(func(args []string) zsh.Action {
+			return zsh.ActionValues(groupNames()...)
+		}),
+	)
+
+	zsh.Gen(getCommand).FlagCompletion(zsh.ActionMap{
+		"start": zsh.ActionValues("2020-01-01", "-2h", "-2m", "-2s", "-2ms", "-2us", "-2ns"),
+		"stop":  zsh.ActionValues("2020-01-01", "-2h", "-2m", "-2s", "-2ms", "-2us", "-2ns"),
+		"prefix": zsh.ActionCallback(func(args []string) zsh.Action {
+			if len(args) == 0 {
+				return zsh.ActionMessage("missing log group argument")
+			}
+			return zsh.ActionMultiParts('/', streamPrefixes(args[0])...)
+		}),
+	})
 }

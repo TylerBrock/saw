@@ -22,10 +22,12 @@ build() {
   cd "${srcdir}/go/src/github.com/TylerBrock/${pkgname}"
   dep ensure
   go build .
+  ./saw _zsh_completion > _saw
 }
 
 package() {
   cd "${srcdir}/go/src/github.com/TylerBrock/${pkgname}"
   install -Dm755 saw "${pkgdir}/usr/bin/${pkgname}"
   install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm0644 _saw "${pkgdir}/usr/share/zsh/site-functions/_${pkgname}"
 }

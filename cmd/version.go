@@ -16,3 +16,7 @@ var versionCommand = &cobra.Command{
 		fmt.Printf("v%s\n", version)
 	},
 }
+
+func init() {
+	SawCommand.AddCommand(versionCommand)
+}
