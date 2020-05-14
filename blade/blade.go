@@ -96,11 +96,14 @@ func (b *Blade) GetEvents() {
 
 	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
 		for _, event := range page.Events {
+			var message string
 			if b.output.Pretty {
-				fmt.Println(formatEvent(formatter, event))
+				message = formatEvent(formatter, event)
 			} else {
-				fmt.Println(*event.Message)
+				message = *event.Message
 			}
+			message = strings.TrimRight(message, "\n")
+			fmt.Println(message)
 		}
 		return !lastPage
 	}
