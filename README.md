@@ -9,7 +9,7 @@
 ## Run from Docker
 
 ```sh
-docker run --rm -it -v ~/.aws:/home/.aws tbrock/saw
+docker run --rm -it -v ~/.aws:$HOME/.aws tbrock/saw
 ```
 
 ## Installation
