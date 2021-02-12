@@ -7,6 +7,7 @@ import (
 
 	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/spf13/cobra"
 )
 
@@ -14,6 +15,7 @@ var watchConfig config.Configuration
 
 var watchOutputConfig config.OutputConfiguration
 
+var useRecent bool
 var watchCommand = &cobra.Command{
 	Use:   "watch <log group>",
 	Short: "Continuously stream log events",
@@ -27,8 +29,13 @@ var watchCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		watchConfig.Group = args[0]
 		b := blade.NewBlade(&watchConfig, &awsConfig, &watchOutputConfig)
-		if watchConfig.Prefix != "" {
-			streams := b.GetLogStreams()
+		if watchConfig.Prefix != "" || useRecent {
+			var streams []*cloudwatchlogs.LogStream
+			if useRecent {
+				streams = b.GetTopLogStreams()
+			} else {
+				streams = b.GetLogStreams()
+			}
 			if len(streams) == 0 {
 				fmt.Printf("No streams found in %s with prefix %s\n", watchConfig.Group, watchConfig.Prefix)
 				fmt.Printf("To view available streams: `saw streams %s`\n", watchConfig.Group)
@@ -41,6 +48,7 @@ var watchCommand = &cobra.Command{
 }
 
 func init() {
+	watchCommand.Flags().BoolVar(&useRecent, "recent", true, "Tails from recently changed streams")
 	watchCommand.Flags().StringVar(&watchConfig.Prefix, "prefix", "", "log stream prefix filter")
 	watchCommand.Flags().StringVar(&watchConfig.Filter, "filter", "", "event filter pattern")
 	watchCommand.Flags().BoolVar(&watchOutputConfig.Raw, "raw", false, "print raw log event without timestamp or stream prefix")
