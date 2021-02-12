@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // TODO: colorize based on logGroup prefix (/aws/lambda, /aws/kinesisfirehose, etc...)
@@ -17,7 +17,13 @@ var groupsCommand = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		b := blade.NewBlade(&groupsConfig, &awsConfig, nil)
-		logGroups := b.GetLogGroups()
+		logGroups, err := b.GetLogGroups()
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Code()+": "+err.Message())
+			os.Exit(1)
+		}
+
 		for _, group := range logGroups {
 			fmt.Println(*group.LogGroupName)
 		}
