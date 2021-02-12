@@ -43,6 +43,7 @@ var watchCommand = &cobra.Command{
 func init() {
 	watchCommand.Flags().StringVar(&watchConfig.Prefix, "prefix", "", "log stream prefix filter")
 	watchCommand.Flags().StringVar(&watchConfig.Filter, "filter", "", "event filter pattern")
+	watchCommand.Flags().StringVar(&watchConfig.Key, "key", "", "print this key for JSON-formatted messages")
 	watchCommand.Flags().BoolVar(&watchOutputConfig.Raw, "raw", false, "print raw log event without timestamp or stream prefix")
 	watchCommand.Flags().BoolVar(&watchOutputConfig.Expand, "expand", false, "indent JSON log messages")
 	watchCommand.Flags().BoolVar(&watchOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")

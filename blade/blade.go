@@ -99,7 +99,14 @@ func (b *Blade) GetEvents() {
 			if b.output.Pretty {
 				fmt.Println(formatEvent(formatter, event))
 			} else {
-				fmt.Println(*event.Message)
+				var message string
+				if len(b.config.Key) > 0 {
+					message = formatMessage(formatter, event, b.config.Key)
+				} else {
+					message = formatEvent(formatter, event)
+				}
+
+				fmt.Println(message)
 			}
 		}
 		return !lastPage
@@ -141,7 +148,11 @@ func (b *Blade) StreamEvents() {
 				if b.output.Raw {
 					message = *event.Message
 				} else {
-					message = formatEvent(formatter, event)
+					if len(b.config.Key) > 0 {
+						message = formatMessage(formatter, event, b.config.Key)
+					} else {
+						message = formatEvent(formatter, event)
+					}
 				}
 				message = strings.TrimRight(message, "\n")
 				fmt.Println(message)
@@ -182,4 +193,22 @@ func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredL
 
 	output, _ := formatter.Marshal(jl)
 	return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), output)
+}
+
+func formatMessage(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent, key string) string {
+	red := color.New(color.FgRed).SprintFunc()
+	white := color.New(color.FgWhite).SprintFunc()
+
+	str := aws.StringValue(event.Message)
+	bytes := []byte(str)
+	date := aws.MillisecondsTimeValue(event.Timestamp)
+	dateStr := date.Format(time.RFC3339)
+	streamStr := aws.StringValue(event.LogStreamName)
+	jl := map[string]interface{}{}
+
+	if err := json.Unmarshal(bytes, &jl); err != nil {
+		return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), str)
+	}
+
+	return fmt.Sprintf("[%s] (%s) %s", red(dateStr), white(streamStr), jl[key])
 }
