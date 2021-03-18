@@ -57,10 +57,10 @@ func NewBlade(
 }
 
 // GetLogGroups gets the log groups from AWS given the blade configuration
-func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
+func (b *Blade) GetLogGroups() ([]*cloudwatchlogs.LogGroup, error) {
 	input := b.config.DescribeLogGroupsInput()
 	groups := make([]*cloudwatchlogs.LogGroup, 0)
-	b.cwl.DescribeLogGroupsPages(input, func(
+	err := b.cwl.DescribeLogGroupsPages(input, func(
 		out *cloudwatchlogs.DescribeLogGroupsOutput,
 		lastPage bool,
 	) bool {
@@ -69,7 +69,10 @@ func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 		}
 		return !lastPage
 	})
-	return groups
+	if err != nil {
+		return nil, err
+	}
+	return groups, nil
 }
 
 // GetLogStreams gets the log streams from AWS given the blade configuration

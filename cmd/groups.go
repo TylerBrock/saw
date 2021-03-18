@@ -17,7 +17,10 @@ var groupsCommand = &cobra.Command{
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		b := blade.NewBlade(&groupsConfig, &awsConfig, nil)
-		logGroups := b.GetLogGroups()
+		logGroups, err := b.GetLogGroups()
+		if err != nil {
+			fmt.Println("Error", err)
+		}
 		for _, group := range logGroups {
 			fmt.Println(*group.LogGroupName)
 		}
