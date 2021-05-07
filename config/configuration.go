@@ -115,7 +115,7 @@ func (c *Configuration) TopStreamNames() []*string {
 		}
 		if c.Streams[j].LastEventTimestamp == nil {
 			now := time.Now().UnixNano() / int64(time.Millisecond)
-			c.Streams[i].LastEventTimestamp = &now
+			c.Streams[j].LastEventTimestamp = &now
 		}
 		return *c.Streams[i].LastEventTimestamp > *c.Streams[j].LastEventTimestamp
 	})
