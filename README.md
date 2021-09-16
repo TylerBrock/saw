@@ -17,8 +17,7 @@ docker run --rm -it -v ~/.aws:$HOME/.aws tbrock/saw
 ### Mac OS X
 
 ```sh
-brew tap TylerBrock/saw
-brew install saw
+brew install TylerBrock/saw/saw
 ```
 
 ### Linux
