@@ -1,8 +1,8 @@
 package config
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"os"
 	"sort"
 	"time"

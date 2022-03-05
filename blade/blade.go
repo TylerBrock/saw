@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/olekukonko/tablewriter"
 	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -15,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/fatih/color"
+	"github.com/olekukonko/tablewriter"
 )
 
 // A Blade is a Saw execution instance
@@ -209,7 +209,7 @@ func (b *Blade) RunQuery() {
 
 	firstRow := queryResultsOutput.Results[0]
 	headers := make([]string, len(firstRow)-1)
-	for i := 0; i < len(firstRow) - 1; i++ {
+	for i := 0; i < len(firstRow)-1; i++ {
 		headers[i] = *firstRow[i].Field
 	}
 	if !b.output.NoHeaders {
