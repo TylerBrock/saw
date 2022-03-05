@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
 	"github.com/aws/aws-sdk-go/aws"
@@ -162,6 +163,69 @@ func (b *Blade) StreamEvents() {
 		}
 		time.Sleep(1 * time.Second)
 	}
+}
+
+// RunQuery runs a CloudWatch Logs Insights query and prints the results to the console
+func (b *Blade) RunQuery() {
+	input := b.config.StartQueryInput()
+	startQueryOutput, err := b.cwl.StartQuery(input)
+	if err != nil {
+		fmt.Println("Error", err)
+		os.Exit(2)
+	}
+
+	queryId := startQueryOutput.QueryId
+	queryResultsOutput := &cloudwatchlogs.GetQueryResultsOutput{}
+	for {
+		queryResultsOutput, err = b.cwl.GetQueryResults(&cloudwatchlogs.GetQueryResultsInput{
+			QueryId: queryId,
+		})
+		if err != nil {
+			fmt.Println("Error", err)
+			os.Exit(2)
+		}
+
+		if *queryResultsOutput.Status == "Complete" {
+			break
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+
+	// We're assuming the field names are always in the same order
+	// and that the order is the same as they appear in the query
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAutoFormatHeaders(false)
+	table.SetAutoWrapText(false)
+	table.SetBorder(false)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetHeaderLine(false)
+	table.SetNoWhiteSpace(true)
+	table.SetRowSeparator("")
+	table.SetTablePadding("\t")
+
+	firstRow := queryResultsOutput.Results[0]
+	headers := make([]string, len(firstRow)-1)
+	for i := 0; i < len(firstRow) - 1; i++ {
+		headers[i] = *firstRow[i].Field
+	}
+	if !b.output.NoHeaders {
+		table.SetHeader(headers)
+	}
+
+	logEntries := make([][]string, len(queryResultsOutput.Results))
+	for index, logRecord := range queryResultsOutput.Results {
+		logEntry := make([]string, len(logRecord)-1)
+		for i := 0; i < len(logRecord)-1; i++ {
+			logEntry[i] = *logRecord[i].Value
+		}
+		logEntries[index] = logEntry
+	}
+	table.AppendBulk(logEntries)
+	table.Render()
 }
 
 // formatEvent returns a CloudWatch log event as a formatted string using the provided formatter
