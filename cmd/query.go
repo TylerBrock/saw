@@ -24,6 +24,7 @@ var queryCommand = &cobra.Command{
 		}
 		if len(queryConfig.Groups) == 0 {
 			fmt.Println("--groups must be defined at least once")
+			os.Exit(2)
 		}
 
 		b.RunQuery()
