@@ -33,6 +33,10 @@ func NewBlade(
 	blade := Blade{}
 	awsCfg := aws.Config{}
 
+	if awsConfig.Endpoint != "" {
+		awsCfg.Endpoint = &awsConfig.Endpoint
+	}
+
 	if awsConfig.Region != "" {
 		awsCfg.Region = &awsConfig.Region
 	}
