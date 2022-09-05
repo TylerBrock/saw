@@ -11,6 +11,7 @@ import (
 
 type Configuration struct {
 	Group      string
+	Fuzzy      bool
 	Prefix     string
 	Start      string
 	End        string

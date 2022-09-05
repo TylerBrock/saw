@@ -21,6 +21,9 @@
     - `saw watch production` Stream logs from production log group
     - `saw watch production --prefix api` Stream logs from production log group with prefix "api"
 
+- Fuzzy search the log group name
+    - `saw get --fuzzy LambdaFunctionName`
+
 ## Usage
 
 - Basic

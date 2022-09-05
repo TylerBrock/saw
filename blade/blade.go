@@ -2,8 +2,8 @@ package blade
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -65,6 +65,9 @@ func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 		lastPage bool,
 	) bool {
 		for _, group := range out.LogGroups {
+			if b.config.Fuzzy && !groupNameMatches(*group.LogGroupName, b.config.Group) {
+				continue
+			}
 			groups = append(groups, group)
 		}
 		return !lastPage
@@ -72,10 +75,42 @@ func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
 	return groups
 }
 
+func groupNameMatches(s, substr string) bool {
+	return strings.Contains(s, substr)
+}
+
+func (b *Blade) ResolveFuzzyGroupName() (err error) {
+	if !b.config.Fuzzy {
+		return
+	}
+	b.config.Fuzzy = false
+	groups := b.GetLogGroups()
+	if len(groups) == 0 {
+		return errors.New("no results for log group fuzzy search")
+	}
+	filtered := filterGroupNames(groups, b.config.Group)
+	if len(filtered) > 1 {
+		return fmt.Errorf("too many results for log group fuzzy search\n%s", strings.Join(filtered, "\n"))
+	}
+	b.config.Group = *groups[0].LogGroupName
+	return
+}
+
+func filterGroupNames(groups []*cloudwatchlogs.LogGroup, group string) (op []string) {
+	for i := 0; i < len(groups); i++ {
+		if groupNameMatches(*groups[i].LogGroupName, group) {
+			op = append(op, *groups[i].LogGroupName)
+		}
+	}
+	return
+}
+
 // GetLogStreams gets the log streams from AWS given the blade configuration
-func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
+func (b *Blade) GetLogStreams() (streams []*cloudwatchlogs.LogStream, err error) {
+	if err := b.ResolveFuzzyGroupName(); err != nil {
+		return nil, err
+	}
 	input := b.config.DescribeLogStreamsInput()
-	streams := make([]*cloudwatchlogs.LogStream, 0)
 	b.cwl.DescribeLogStreamsPages(input, func(
 		out *cloudwatchlogs.DescribeLogStreamsOutput,
 		lastPage bool,
@@ -85,12 +120,14 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 		}
 		return !lastPage
 	})
-
-	return streams
+	return streams, err
 }
 
 // GetEvents gets events from AWS given the blade configuration
-func (b *Blade) GetEvents() {
+func (b *Blade) GetEvents() (err error) {
+	if err := b.ResolveFuzzyGroupName(); err != nil {
+		return err
+	}
 	formatter := b.output.Formatter()
 	input := b.config.FilterLogEventsInput()
 
@@ -104,15 +141,11 @@ func (b *Blade) GetEvents() {
 		}
 		return !lastPage
 	}
-	err := b.cwl.FilterLogEventsPages(input, handlePage)
-	if err != nil {
-		fmt.Println("Error", err)
-		os.Exit(2)
-	}
+	return b.cwl.FilterLogEventsPages(input, handlePage)
 }
 
 // StreamEvents continuously prints log events to the console
-func (b *Blade) StreamEvents() {
+func (b *Blade) StreamEvents() (err error) {
 	var lastSeenTime *int64
 	var seenEventIDs map[string]bool
 	formatter := b.output.Formatter()
@@ -152,10 +185,9 @@ func (b *Blade) StreamEvents() {
 	}
 
 	for {
-		err := b.cwl.FilterLogEventsPages(input, handlePage)
+		err = b.cwl.FilterLogEventsPages(input, handlePage)
 		if err != nil {
-			fmt.Println("Error", err)
-			os.Exit(2)
+			return
 		}
 		if lastSeenTime != nil {
 			input.SetStartTime(*lastSeenTime)
