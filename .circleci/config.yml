@@ -1,0 +1,17 @@
+# circle.yml
+version: 2.1
+jobs:
+  deploy:
+    docker:
+      - image: cimg/go:1.19.1
+    steps:
+      - checkout
+      - run: curl -sL https://git.io/goreleaser | bash
+
+workflows:
+  deploy_saw:
+    jobs:
+      - deploy:
+        filters:
+        tags:
+          only: /v[0-9]+(\.[0-9]+)*(-.*)*/
