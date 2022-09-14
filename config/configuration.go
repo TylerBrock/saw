@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"sort"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 
 type Configuration struct {
 	Group      string
+	Groups     []string
 	Prefix     string
 	Start      string
 	End        string
@@ -18,6 +21,7 @@ type Configuration struct {
 	Streams    []*cloudwatchlogs.LogStream
 	Descending bool
 	OrderBy    string
+	Query      string
 }
 
 // Define the order of time formats to attempt to use to parse our input absolute time
@@ -31,6 +35,10 @@ var absoluteTimeFormats = []string{
 // Parse the input string into a time.Time object.
 // Provide the currentTime as a parameter to support relative time.
 func getTime(timeStr string, currentTime time.Time) (time.Time, error) {
+	if timeStr == "now" {
+		return currentTime, nil
+	}
+
 	relative, err := time.ParseDuration(timeStr)
 	if err == nil {
 		return currentTime.Add(relative), nil
@@ -88,6 +96,10 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 		if err == nil {
 			absoluteStartTime = st
 		}
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(2)
+		}
 	}
 	input.SetStartTime(aws.TimeUnixMilli(absoluteStartTime))
 
@@ -95,6 +107,10 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 		et, err := getTime(c.End, currentTime)
 		if err == nil {
 			input.SetEndTime(aws.TimeUnixMilli(et))
+		}
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(2)
 		}
 	}
 
@@ -125,4 +141,40 @@ func (c *Configuration) TopStreamNames() []*string {
 	}
 
 	return streamNames
+}
+
+func (c *Configuration) StartQueryInput() *cloudwatchlogs.StartQueryInput {
+	input := cloudwatchlogs.StartQueryInput{}
+	input.SetLogGroupNames(aws.StringSlice(c.Groups))
+
+	// TODO: allow multiple groups
+
+	currentTime := time.Now()
+	absoluteStartTime := currentTime
+	if c.Start != "" {
+		st, err := getTime(c.Start, currentTime)
+		if err == nil {
+			absoluteStartTime = st
+		}
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(2)
+		}
+	}
+	input.SetStartTime(aws.TimeUnixMilli(absoluteStartTime))
+
+	if c.End != "" {
+		et, err := getTime(c.End, currentTime)
+		if err == nil {
+			input.SetEndTime(aws.TimeUnixMilli(et))
+		}
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(2)
+		}
+	}
+
+	input.SetQueryString(c.Query)
+
+	return &input
 }
