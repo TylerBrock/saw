@@ -23,11 +23,14 @@ var streamsCommand = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		streamsConfig.Group = args[0]
-		b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
-
-		logStreams, err := b.GetLogStreams()
+		b, err := blade.NewBlade(cmd.Context(), &streamsConfig, &awsConfig, nil)
 		if err != nil {
-			return err
+			return
+		}
+
+		logStreams, err := b.GetLogStreams(cmd.Context())
+		if err != nil {
+			return fmt.Errorf("failed to get log streams: %w", err)
 		}
 		for _, stream := range logStreams {
 			fmt.Println(*stream.LogStreamName)

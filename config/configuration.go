@@ -5,8 +5,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 )
 
 type Configuration struct {
@@ -16,7 +17,7 @@ type Configuration struct {
 	Start      string
 	End        string
 	Filter     string
-	Streams    []*cloudwatchlogs.LogStream
+	Streams    []types.LogStream
 	Descending bool
 	OrderBy    string
 }
@@ -52,34 +53,33 @@ func getTime(timeStr string, currentTime time.Time) (time.Time, error) {
 func (c *Configuration) DescribeLogGroupsInput() *cloudwatchlogs.DescribeLogGroupsInput {
 	input := cloudwatchlogs.DescribeLogGroupsInput{}
 	if c.Prefix != "" {
-		input.SetLogGroupNamePrefix(c.Prefix)
+		input.LogGroupNamePrefix = &c.Prefix
 	}
 	return &input
 }
 
 func (c *Configuration) DescribeLogStreamsInput() *cloudwatchlogs.DescribeLogStreamsInput {
-	input := cloudwatchlogs.DescribeLogStreamsInput{}
-	input.SetLogGroupName(c.Group)
-	input.SetDescending(c.Descending)
-
+	input := cloudwatchlogs.DescribeLogStreamsInput{
+		LogGroupName: &c.Group,
+		Descending:   &c.Descending,
+	}
 	if c.OrderBy != "" {
-		input.SetOrderBy(c.OrderBy)
+		input.OrderBy = types.OrderBy(c.OrderBy)
 	}
-
 	if c.Prefix != "" {
-		input.SetLogStreamNamePrefix(c.Prefix)
+		input.LogStreamNamePrefix = &c.Prefix
 	}
-
 	return &input
 }
 
 func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsInput {
-	input := cloudwatchlogs.FilterLogEventsInput{}
-	input.SetInterleaved(true)
-	input.SetLogGroupName(c.Group)
+	input := cloudwatchlogs.FilterLogEventsInput{
+		Interleaved:  aws.Bool(true),
+		LogGroupName: &c.Group,
+	}
 
 	if len(c.Streams) != 0 {
-		input.SetLogStreamNames(c.TopStreamNames())
+		input.LogStreamNames = c.TopStreamNames()
 	}
 
 	currentTime := time.Now()
@@ -90,23 +90,23 @@ func (c *Configuration) FilterLogEventsInput() *cloudwatchlogs.FilterLogEventsIn
 			absoluteStartTime = st
 		}
 	}
-	input.SetStartTime(aws.TimeUnixMilli(absoluteStartTime))
+	input.StartTime = aws.Int64(absoluteStartTime.UnixMilli())
 
 	if c.End != "" {
 		et, err := getTime(c.End, currentTime)
 		if err == nil {
-			input.SetEndTime(aws.TimeUnixMilli(et))
+			input.EndTime = aws.Int64(et.UnixMilli())
 		}
 	}
 
 	if c.Filter != "" {
-		input.SetFilterPattern(c.Filter)
+		input.FilterPattern = &c.Filter
 	}
 
 	return &input
 }
 
-func (c *Configuration) TopStreamNames() []*string {
+func (c *Configuration) TopStreamNames() []string {
 	// FilerLogEvents can only take 100 streams so lets sort by LastEventTimestamp
 	// (descending) and take only the names of the most recent 100.
 	sort.Slice(c.Streams, func(i int, j int) bool {
@@ -114,15 +114,13 @@ func (c *Configuration) TopStreamNames() []*string {
 	})
 
 	numStreams := 100
-
 	if len(c.Streams) < 100 {
 		numStreams = len(c.Streams)
 	}
 
-	streamNames := make([]*string, 0)
-
-	for _, stream := range c.Streams[:numStreams] {
-		streamNames = append(streamNames, stream.LogStreamName)
+	streamNames := make([]string, numStreams)
+	for i := 0; i < numStreams; i++ {
+		streamNames[i] = *c.Streams[i].LogStreamName
 	}
 
 	return streamNames

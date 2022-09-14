@@ -1,6 +1,7 @@
 package blade
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,10 +10,9 @@ import (
 
 	"github.com/TylerBrock/colorjson"
 	"github.com/TylerBrock/saw/config"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/fatih/color"
 )
 
@@ -21,70 +21,62 @@ type Blade struct {
 	config *config.Configuration
 	aws    *config.AWSConfiguration
 	output *config.OutputConfiguration
-	cwl    *cloudwatchlogs.CloudWatchLogs
+	cwl    *cloudwatchlogs.Client
 }
 
 // NewBlade creates a new Blade with CloudWatchLogs instance from provided config
 func NewBlade(
+	ctx context.Context,
 	config *config.Configuration,
 	awsConfig *config.AWSConfiguration,
 	outputConfig *config.OutputConfiguration,
-) *Blade {
+) (*Blade, error) {
 	blade := Blade{}
-	awsCfg := aws.Config{}
 
-	if awsConfig.Region != "" {
-		awsCfg.Region = &awsConfig.Region
-	}
-
-	awsSessionOpts := session.Options{
-		Config:                  awsCfg,
-		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
-		SharedConfigState:       session.SharedConfigEnable,
-	}
-
+	var opts []func(*awsconfig.LoadOptions) error
 	if awsConfig.Profile != "" {
-		awsSessionOpts.Profile = awsConfig.Profile
+		opts = append(opts, awsconfig.WithSharedConfigProfile(awsConfig.Profile))
 	}
+	if awsConfig.Region != "" {
+		opts = append(opts, awsconfig.WithRegion(awsConfig.Region))
+	}
+	awsCfg, err := awsconfig.LoadDefaultConfig(ctx, opts...)
 
-	sess := session.Must(session.NewSessionWithOptions(awsSessionOpts))
-
-	blade.cwl = cloudwatchlogs.New(sess)
+	blade.cwl = cloudwatchlogs.NewFromConfig(awsCfg)
 	blade.config = config
 	blade.output = outputConfig
 
-	return &blade
+	return &blade, err
 }
 
 // GetLogGroups gets the log groups from AWS given the blade configuration
-func (b *Blade) GetLogGroups() []*cloudwatchlogs.LogGroup {
+func (b *Blade) GetLogGroups(ctx context.Context) (groups []types.LogGroup, err error) {
 	input := b.config.DescribeLogGroupsInput()
-	groups := make([]*cloudwatchlogs.LogGroup, 0)
-	b.cwl.DescribeLogGroupsPages(input, func(
-		out *cloudwatchlogs.DescribeLogGroupsOutput,
-		lastPage bool,
-	) bool {
-		for _, group := range out.LogGroups {
-			if b.config.Fuzzy && !groupNameMatches(*group.LogGroupName, b.config.Group) {
-				continue
-			}
-			groups = append(groups, group)
+	logGroupsPaginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(b.cwl, input)
+	var page *cloudwatchlogs.DescribeLogGroupsOutput
+	for logGroupsPaginator.HasMorePages() {
+		page, err = logGroupsPaginator.NextPage(ctx)
+		if err != nil {
+			return
 		}
-		return !lastPage
-	})
-	return groups
+		groups = append(groups, page.LogGroups...)
+	}
+	return
 }
 
 func groupNameMatches(s, substr string) bool {
 	return strings.Contains(s, substr)
 }
 
-func (b *Blade) ResolveFuzzyGroupName() (err error) {
+func (b *Blade) ResolveFuzzyGroupName(ctx context.Context) (err error) {
 	if !b.config.Fuzzy {
 		return
 	}
 	b.config.Fuzzy = false
-	groups := b.GetLogGroups()
+	groups, err := b.GetLogGroups(ctx)
+	if err != nil {
+		return
+	}
 	if len(groups) == 0 {
 		return errors.New("no log groups found")
 	}
@@ -99,7 +91,7 @@ func (b *Blade) ResolveFuzzyGroupName() (err error) {
 	return
 }
 
-func getGroupNames(groups []*cloudwatchlogs.LogGroup) (op []string) {
+func getGroupNames(groups []types.LogGroup) (op []string) {
 	op = make([]string, len(groups))
 	for i := 0; i < len(groups); i++ {
 		op[i] = *groups[i].LogGroupName
@@ -107,7 +99,7 @@ func getGroupNames(groups []*cloudwatchlogs.LogGroup) (op []string) {
 	return
 }
 
-func filterGroupNames(groups []*cloudwatchlogs.LogGroup, group string) (op []string) {
+func filterGroupNames(groups []types.LogGroup, group string) (op []string) {
 	for i := 0; i < len(groups); i++ {
 		if groupNameMatches(*groups[i].LogGroupName, group) {
 			op = append(op, *groups[i].LogGroupName)
@@ -117,32 +109,37 @@ func filterGroupNames(groups []*cloudwatchlogs.LogGroup, group string) (op []str
 }
 
 // GetLogStreams gets the log streams from AWS given the blade configuration
-func (b *Blade) GetLogStreams() (streams []*cloudwatchlogs.LogStream, err error) {
-	if err := b.ResolveFuzzyGroupName(); err != nil {
+func (b *Blade) GetLogStreams(ctx context.Context) (streams []types.LogStream, err error) {
+	if err := b.ResolveFuzzyGroupName(ctx); err != nil {
 		return nil, err
 	}
 	input := b.config.DescribeLogStreamsInput()
-	b.cwl.DescribeLogStreamsPages(input, func(
-		out *cloudwatchlogs.DescribeLogStreamsOutput,
-		lastPage bool,
-	) bool {
-		for _, stream := range out.LogStreams {
-			streams = append(streams, stream)
+	logStreamsPaginator := cloudwatchlogs.NewDescribeLogStreamsPaginator(b.cwl, input)
+	var page *cloudwatchlogs.DescribeLogStreamsOutput
+	for logStreamsPaginator.HasMorePages() {
+		page, err = logStreamsPaginator.NextPage(ctx)
+		if err != nil {
+			return
 		}
-		return !lastPage
-	})
-	return streams, err
+		streams = append(streams, page.LogStreams...)
+	}
+	return
 }
 
 // GetEvents gets events from AWS given the blade configuration
-func (b *Blade) GetEvents() (err error) {
-	if err := b.ResolveFuzzyGroupName(); err != nil {
+func (b *Blade) GetEvents(ctx context.Context) (err error) {
+	if err := b.ResolveFuzzyGroupName(ctx); err != nil {
 		return err
 	}
 	formatter := b.output.Formatter()
 	input := b.config.FilterLogEventsInput()
-
-	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
+	logEventsPaginator := cloudwatchlogs.NewFilterLogEventsPaginator(b.cwl, input)
+	var page *cloudwatchlogs.FilterLogEventsOutput
+	for logEventsPaginator.HasMorePages() {
+		page, err = logEventsPaginator.NextPage(ctx)
+		if err != nil {
+			return
+		}
 		for _, event := range page.Events {
 			if b.output.Pretty {
 				fmt.Println(strings.TrimRight(formatEvent(formatter, event), "\n"))
@@ -150,13 +147,12 @@ func (b *Blade) GetEvents() (err error) {
 				fmt.Println(strings.TrimRight(*event.Message, "\n"))
 			}
 		}
-		return !lastPage
 	}
-	return b.cwl.FilterLogEventsPages(input, handlePage)
+	return
 }
 
 // StreamEvents continuously prints log events to the console
-func (b *Blade) StreamEvents() (err error) {
+func (b *Blade) StreamEvents(ctx context.Context) (err error) {
 	var lastSeenTime *int64
 	var seenEventIDs map[string]bool
 	formatter := b.output.Formatter()
@@ -177,46 +173,45 @@ func (b *Blade) StreamEvents() (err error) {
 		}
 	}
 
-	handlePage := func(page *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
-		for _, event := range page.Events {
-			updateLastSeenTime(event.Timestamp)
-			if _, seen := seenEventIDs[*event.EventId]; !seen {
-				var message string
-				if b.output.Raw {
-					message = *event.Message
-				} else {
-					message = formatEvent(formatter, event)
+	for {
+		logEventsPaginator := cloudwatchlogs.NewFilterLogEventsPaginator(b.cwl, input)
+		var page *cloudwatchlogs.FilterLogEventsOutput
+		for logEventsPaginator.HasMorePages() {
+			page, err = logEventsPaginator.NextPage(ctx)
+			if err != nil {
+				return
+			}
+			for _, event := range page.Events {
+				updateLastSeenTime(event.Timestamp)
+				if _, seen := seenEventIDs[*event.EventId]; !seen {
+					var message string
+					if b.output.Raw {
+						message = *event.Message
+					} else {
+						message = formatEvent(formatter, event)
+					}
+					message = strings.TrimRight(message, "\n")
+					fmt.Println(message)
+					addSeenEventIDs(event.EventId)
 				}
-				message = strings.TrimRight(message, "\n")
-				fmt.Println(message)
-				addSeenEventIDs(event.EventId)
 			}
 		}
-		return !lastPage
-	}
-
-	for {
-		err = b.cwl.FilterLogEventsPages(input, handlePage)
-		if err != nil {
-			return
-		}
 		if lastSeenTime != nil {
-			input.SetStartTime(*lastSeenTime)
+			input.StartTime = lastSeenTime
 		}
 		time.Sleep(1 * time.Second)
 	}
 }
 
 // formatEvent returns a CloudWatch log event as a formatted string using the provided formatter
-func formatEvent(formatter *colorjson.Formatter, event *cloudwatchlogs.FilteredLogEvent) string {
+func formatEvent(formatter *colorjson.Formatter, event types.FilteredLogEvent) string {
 	red := color.New(color.FgRed).SprintFunc()
 	white := color.New(color.FgWhite).SprintFunc()
 
-	str := aws.StringValue(event.Message)
-	bytes := []byte(str)
-	date := aws.MillisecondsTimeValue(event.Timestamp)
-	dateStr := date.Format(time.RFC3339)
-	streamStr := aws.StringValue(event.LogStreamName)
+	str := *event.Message
+	bytes := []byte(*event.Message)
+	dateStr := time.UnixMilli(*event.Timestamp).Format(time.RFC3339)
+	streamStr := *event.LogStreamName
 	jl := map[string]interface{}{}
 
 	if err := json.Unmarshal(bytes, &jl); err != nil {
