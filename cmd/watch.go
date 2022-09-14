@@ -24,11 +24,17 @@ var watchCommand = &cobra.Command{
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		watchConfig.Group = args[0]
-		b := blade.NewBlade(&watchConfig, &awsConfig, &watchOutputConfig)
+		b, err := blade.NewBlade(cmd.Context(), &watchConfig, &awsConfig, &watchOutputConfig)
+		if err != nil {
+			return
+		}
 		if watchConfig.Prefix != "" {
-			streams := b.GetLogStreams()
+			streams, err := b.GetLogStreams(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("failed to get log streams: %w", err)
+			}
 			if len(streams) == 0 {
 				fmt.Printf("No streams found in %s with prefix %s\n", watchConfig.Group, watchConfig.Prefix)
 				fmt.Printf("To view available streams: `saw streams %s`\n", watchConfig.Group)
@@ -36,7 +42,7 @@ var watchCommand = &cobra.Command{
 			}
 			watchConfig.Streams = streams
 		}
-		b.StreamEvents()
+		return b.StreamEvents(cmd.Context())
 	},
 }
 
