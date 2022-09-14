@@ -48,7 +48,7 @@ func init() {
 	getCommand.Flags().StringVar(
 		&getConfig.Start,
 		"start",
-		"",
+		"-10m",
 		`start getting the logs from this point
 Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
