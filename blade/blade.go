@@ -86,13 +86,24 @@ func (b *Blade) ResolveFuzzyGroupName() (err error) {
 	b.config.Fuzzy = false
 	groups := b.GetLogGroups()
 	if len(groups) == 0 {
-		return errors.New("no results for log group fuzzy search")
+		return errors.New("no log groups found")
 	}
 	filtered := filterGroupNames(groups, b.config.Group)
 	if len(filtered) > 1 {
 		return fmt.Errorf("too many results for log group fuzzy search\n%s", strings.Join(filtered, "\n"))
 	}
-	b.config.Group = *groups[0].LogGroupName
+	if len(filtered) == 0 {
+		return fmt.Errorf("no results for log group fuzzy search in %d groups\n%s", len(groups), strings.Join(getGroupNames(groups), "\n"))
+	}
+	b.config.Group = filtered[0]
+	return
+}
+
+func getGroupNames(groups []*cloudwatchlogs.LogGroup) (op []string) {
+	op = make([]string, len(groups))
+	for i := 0; i < len(groups); i++ {
+		op[i] = *groups[i].LogGroupName
+	}
 	return
 }
 
