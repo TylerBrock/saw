@@ -23,11 +23,17 @@ var getCommand = &cobra.Command{
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		getConfig.Group = args[0]
-		b := blade.NewBlade(&getConfig, &awsConfig, &getOutputConfig)
+		b, err := blade.NewBlade(cmd.Context(), &getConfig, &awsConfig, &getOutputConfig)
+		if err != nil {
+			return
+		}
 		if getConfig.Prefix != "" {
-			streams := b.GetLogStreams()
+			streams, err := b.GetLogStreams(cmd.Context())
+			if err != nil {
+				return fmt.Errorf("failed to get log streams: %w", err)
+			}
 			if len(streams) == 0 {
 				fmt.Printf("No streams found in %s with prefix %s\n", getConfig.Group, getConfig.Prefix)
 				fmt.Printf("To view available streams: `saw streams %s`\n", getConfig.Group)
@@ -35,16 +41,17 @@ var getCommand = &cobra.Command{
 			}
 			getConfig.Streams = streams
 		}
-		b.GetEvents()
+		return b.GetEvents(cmd.Context())
 	},
 }
 
 func init() {
+	getCommand.Flags().BoolVar(&getConfig.Fuzzy, "fuzzy", false, "log group fuzzy match")
 	getCommand.Flags().StringVar(&getConfig.Prefix, "prefix", "", "log group prefix filter")
 	getCommand.Flags().StringVar(
 		&getConfig.Start,
 		"start",
-		"",
+		"-10m",
 		`start getting the logs from this point
 Takes an absolute timestamp in RFC3339 format, or a relative time (eg. -2h).
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,

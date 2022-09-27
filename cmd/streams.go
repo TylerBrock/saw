@@ -21,18 +21,26 @@ var streamsCommand = &cobra.Command{
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
 		streamsConfig.Group = args[0]
-		b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
+		b, err := blade.NewBlade(cmd.Context(), &streamsConfig, &awsConfig, nil)
+		if err != nil {
+			return
+		}
 
-		logStreams := b.GetLogStreams()
+		logStreams, err := b.GetLogStreams(cmd.Context())
+		if err != nil {
+			return fmt.Errorf("failed to get log streams: %w", err)
+		}
 		for _, stream := range logStreams {
 			fmt.Println(*stream.LogStreamName)
 		}
+		return
 	},
 }
 
 func init() {
+	streamsCommand.Flags().BoolVar(&streamsConfig.Fuzzy, "fuzzy", false, "log group fuzzy match")
 	streamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
 	streamsCommand.Flags().StringVar(&streamsConfig.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
 	streamsCommand.Flags().BoolVar(&streamsConfig.Descending, "descending", false, "order streams descending")
