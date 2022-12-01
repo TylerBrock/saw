@@ -112,7 +112,7 @@ sudo dpkg -i <the_deb_name>
 
 - [Install go](https://golang.org/doc/install)
 - Configure your `GOPATH` and add `$GOPATH/bin` to your path
-- Run `go get -u github.com/TylerBrock/saw`
+- Run `go install github.com/TylerBrock/saw@latest`
 
 #### Windows Specifics
 
