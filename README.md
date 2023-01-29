@@ -6,8 +6,6 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/TylerBrock/saw)](https://goreportcard.com/report/github.com/TylerBrock/saw)
 
-## Features
-
 - Colorized output that can be formatted in various ways
     - `--expand` Explode JSON objects using indenting
     - `--rawString` Print JSON strings instead of escaping ("\n", ...)
@@ -79,8 +77,7 @@ docker run --rm -it -v ~/.aws:$HOME/.aws tbrock/saw
 ### Mac OS X
 
 ```sh
-brew tap TylerBrock/saw
-brew install saw
+brew tap TylerBrock/saw/saw
 ```
 
 ### Linux
