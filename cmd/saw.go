@@ -26,6 +26,7 @@ func init() {
 	SawCommand.AddCommand(versionCommand)
 	SawCommand.AddCommand(watchCommand)
 	SawCommand.AddCommand(getCommand)
+	SawCommand.PersistentFlags().StringVar(&awsConfig.Endpoint, "endpoint-url", "", "override default endpoint URL")
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Region, "region", "", "override profile AWS region")
 	SawCommand.PersistentFlags().StringVar(&awsConfig.Profile, "profile", "", "override default AWS profile")
 }

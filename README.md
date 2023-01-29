@@ -6,65 +6,18 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/TylerBrock/saw)](https://goreportcard.com/report/github.com/TylerBrock/saw)
 
-## Run from Docker
+- Colorized output that can be formatted in various ways
+    - `--expand` Explode JSON objects using indenting
+    - `--rawString` Print JSON strings instead of escaping ("\n", ...)
+    - `--invert` Invert white colors to black for light color schemes
+    - `--raw`, or `--pretty`, for `watch` and `get` commands respectively, toggles display of the timestamp and stream name prefix.
 
-```sh
-docker run --rm -it -v ~/.aws:$HOME/.aws tbrock/saw
-```
+- Filter logs using CloudWatch patterns
+    - `--filter foo` Filter logs for the text "foo"
 
-## Installation
-
-### Mac OS X
-
-```sh
-brew install TylerBrock/saw/saw
-```
-
-### Linux
-
-#### Arch Linux (source)
-
-```sh
-# Using pacaur
-pacaur -S saw
-
-# Using trizen
-trizen -S saw
-
-# Using yaourt
-yaourt -S saw
-
-# Using makepkg
-git clone https://aur.archlinux.org/saw.git
-cd saw
-makepkg -sri
-```
-
-#### Red Hat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
-```sh
-rpm -i <link_to_rpm_you_need_from_releases>
-```
-
-#### Debian Based Distributions (Debian/Ubuntu)
-```sh
-wget <link_to_deb_you_need_from_releases>
-sudo dpkg -i <the_deb_name>
-```
-
-### Manual Install/Update
-
-- [Install go](https://golang.org/doc/install)
-- Configure your `GOPATH` and add `$GOPATH/bin` to your path
-- Run `go get -u github.com/TylerBrock/saw`
-
-#### Windows Specifics
-
-- Add %GOPATH%/bin to your path (optional)
-- Run from gopath/bin (If not in your path)
-    ```DOS .bat
-    cd %GOPATH%/bin
-    saw ...
-    ```
+- Watch aggregated interleaved streams across a log group
+    - `saw watch production` Stream logs from production log group
+    - `saw watch production --prefix api` Stream logs from production log group with prefix "api"
 
 ## Usage
 
@@ -101,22 +54,7 @@ sudo dpkg -i <the_deb_name>
     saw get production --prefix api --start 2018-06-26 --stop 2018-06-28
     ```
 
-## Features
-
-- Colorized output that can be formatted in various ways
-    - `--expand` Explode JSON objects using indenting
-    - `--rawString` Print JSON strings instead of escaping ("\n", ...)
-    - `--invert` Invert white colors to black for light color schemes
-    - `--raw`, or `--pretty`, for `watch` and `get` commands respectively, toggles display of the timestamp and stream name prefix.
-
-- Filter logs using CloudWatch patterns
-    - `--filter foo` Filter logs for the text "foo"
-
-- Watch aggregated interleaved streams across a log group
-    - `saw watch production` Stream logs from production log group
-    - `saw watch production --prefix api` Stream logs from production log group with prefix "api"
-
-## Profile and Region Support
+### Profile and Region Support
 
 By default Saw uses the region and credentials in your default profile. You can override these to your liking using the command line flags:
 
@@ -127,6 +65,60 @@ saw groups --profile personal
 # Use us-west-1 region
 saw groups --region us-west-1
 ```
+
+## Installation
+
+### Run from Docker
+
+```sh
+docker run --rm -it -v ~/.aws:$HOME/.aws tbrock/saw
+```
+
+### Mac OS X
+
+```sh
+brew tap TylerBrock/saw/saw
+```
+
+### Linux
+
+#### Arch Linux (source)
+
+```sh
+# Using yay
+yay saw
+
+# Using makepkg
+git clone https://aur.archlinux.org/saw.git
+cd saw
+makepkg -sri
+```
+
+#### Red Hat Based Distributions (Fedora/RHEL/CentOS/Amazon Linux)
+```sh
+rpm -i <link_to_rpm_you_need_from_releases>
+```
+
+#### Debian Based Distributions (Debian/Ubuntu)
+```sh
+wget <link_to_deb_you_need_from_releases>
+sudo dpkg -i <the_deb_name>
+```
+
+### Manual Install/Update
+
+- [Install go](https://golang.org/doc/install)
+- Configure your `GOPATH` and add `$GOPATH/bin` to your path
+- Run `go install github.com/TylerBrock/saw@latest`
+
+#### Windows Specifics
+
+- Add %GOPATH%/bin to your path (optional)
+- Run from gopath/bin (If not in your path)
+    ```DOS .bat
+    cd %GOPATH%/bin
+    saw ...
+    ```
 
 Alternatively you can hard code these in your shell's init scripts (bashrc, zshrc, etc...):
 
