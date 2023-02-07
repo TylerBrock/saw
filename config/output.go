@@ -12,6 +12,7 @@ type OutputConfiguration struct {
 	Invert    bool
 	RawString bool
 	NoColor   bool
+	NoTimestamp bool
 }
 
 func (c *OutputConfiguration) Formatter() *colorjson.Formatter {
@@ -31,6 +32,10 @@ func (c *OutputConfiguration) Formatter() *colorjson.Formatter {
 
 	if c.NoColor {
 		color.NoColor = true
+	}
+
+	if c.NoTimestamp {
+		formatter.NoTimestamp = true
 	}
 
 	return formatter

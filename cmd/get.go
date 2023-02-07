@@ -62,4 +62,5 @@ Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".`,
 	getCommand.Flags().BoolVar(&getOutputConfig.Expand, "expand", false, "indent JSON log messages")
 	getCommand.Flags().BoolVar(&getOutputConfig.Invert, "invert", false, "invert colors for light terminal themes")
 	getCommand.Flags().BoolVar(&getOutputConfig.RawString, "rawString", false, "print JSON strings without escaping")
+	getCommand.Flags().BoolVar(&watchOutputConfig.NoTimestamp, "noTimestamp", false, "print log without timestamp")
 }
