@@ -3,13 +3,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/TylerBrock/saw/blade"
 	"github.com/TylerBrock/saw/config"
 	"github.com/spf13/cobra"
 )
 
-var streamsConfig config.Configuration
+var streamsConfigGlobal config.Configuration
 
 var streamsCommand = &cobra.Command{
 	Use:   "streams <log group>",
@@ -22,18 +23,26 @@ var streamsCommand = &cobra.Command{
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		streamsConfig.Group = args[0]
-		b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
+		err := runMultiGroup(args[0], func(group string) {
+			streamsConfig := streamsConfigGlobal
+			streamsConfig.Group = group
+			b := blade.NewBlade(&streamsConfig, &awsConfig, nil)
 
-		logStreams := b.GetLogStreams()
-		for _, stream := range logStreams {
-			fmt.Println(*stream.LogStreamName)
+			logStreams := b.GetLogStreams()
+			for _, stream := range logStreams {
+				fmt.Println(*stream.LogStreamName)
+			}
+		})
+
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
 		}
 	},
 }
 
 func init() {
-	streamsCommand.Flags().StringVar(&streamsConfig.Prefix, "prefix", "", "stream prefix filter")
-	streamsCommand.Flags().StringVar(&streamsConfig.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
-	streamsCommand.Flags().BoolVar(&streamsConfig.Descending, "descending", false, "order streams descending")
+	streamsCommand.Flags().StringVar(&streamsConfigGlobal.Prefix, "prefix", "", "stream prefix filter")
+	streamsCommand.Flags().StringVar(&streamsConfigGlobal.OrderBy, "orderBy", "LogStreamName", "order streams by LogStreamName or LastEventTime")
+	streamsCommand.Flags().BoolVar(&streamsConfigGlobal.Descending, "descending", false, "order streams descending")
 }

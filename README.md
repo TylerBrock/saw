@@ -29,31 +29,37 @@
     saw groups
 
     # Get list of streams for production log group
-    saw streams production
+    saw streams "^production$"
     ```
 
 - Watch
     ```sh
     # Watch production log group
-    saw watch production
+    saw watch "^production$"
+
+    # Watch production and staging log groups
+    saw watch "^(production|staging)$"
 
     # Watch production log group streams for api
-    saw watch production --prefix api
+    saw watch "^production$" --prefix api
 
     # Watch production log group streams for api and filter for "error"
-    saw watch production --prefix api --filter error
+    saw watch "^production$" --prefix api --filter error
     ```
 
 - Get
     ```sh
     # Get production log group for the last 2 hours
-    saw get production --start -2h
+    saw get "^production$" --start -2h
+
+    # Get production and staging log group for the last 2 hours
+    saw get "^(production|staging)$" --start -2h
 
     # Get production log group for the last 2 hours and filter for "error"
-    saw get production --start -2h --filter error
+    saw get "^production$" --start -2h --filter error
 
     # Get production log group for api between 26th June 2018 and 28th June 2018
-    saw get production --prefix api --start 2018-06-26 --stop 2018-06-28
+    saw get "^production$" --prefix api --start 2018-06-26 --stop 2018-06-28
     ```
 
 ### Profile and Region Support
