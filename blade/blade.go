@@ -93,6 +93,25 @@ func (b *Blade) GetLogStreams() []*cloudwatchlogs.LogStream {
 	return streams
 }
 
+// GetTopLogStreams gets the recent log streams from AWS without prefix and limited to 100
+func (b *Blade) GetTopLogStreams() []*cloudwatchlogs.LogStream {
+	input := b.config.DescribeRecentLogStreamsInput()
+	streams := make([]*cloudwatchlogs.LogStream, 0)
+	b.cwl.DescribeLogStreamsPages(input, func(
+		out *cloudwatchlogs.DescribeLogStreamsOutput,
+		lastPage bool,
+	) bool {
+		for _, stream := range out.LogStreams {
+			streams = append(streams, stream)
+		}
+		if lastPage || len(streams) >= 100 {
+			return false
+		}
+		return true
+	})
+	return streams
+}
+
 // GetEvents gets events from AWS given the blade configuration
 func (b *Blade) GetEvents() {
 	formatter := b.output.Formatter()
@@ -154,6 +173,7 @@ func (b *Blade) StreamEvents() {
 		}
 		return !lastPage
 	}
+	fmt.Printf("starting to tail logs from %d streams ...\n", len(input.LogStreamNames))
 
 	for {
 		err := b.cwl.FilterLogEventsPages(input, handlePage)

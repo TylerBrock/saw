@@ -40,6 +40,9 @@
     # Watch production log group streams for api
     saw watch production --prefix api
 
+    # Watch recently changed streams for the production log group
+    saw watch production --recent
+
     # Watch production log group streams for api and filter for "error"
     saw watch production --prefix api --filter error
     ```
